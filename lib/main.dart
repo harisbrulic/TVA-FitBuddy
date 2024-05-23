@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -100,14 +101,15 @@ class LoginPage extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Checkbox(value: false, onChanged: (bool? value) {}),
-                  Text('Zapomni si me',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    color: Colors.black,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w400,
+                  Text(
+                    'Zapomni si me',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      color: Colors.black,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
                 ],
               ),
               SizedBox(height: 16.0),
@@ -115,7 +117,12 @@ class LoginPage extends StatelessWidget {
                 child: Container(
                   width: 170,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 12.0),
                       backgroundColor: Color(0xFFFED467),
@@ -140,11 +147,11 @@ class LoginPage extends StatelessWidget {
                 'Še nimaš profila?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    color: Colors.black,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  fontFamily: 'Montserrat',
+                  color: Colors.black,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
               GestureDetector(
                 onTap: () {
