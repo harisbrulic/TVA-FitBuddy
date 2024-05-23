@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/exercises_screens/tek_screen.dart';
 import 'home_screen.dart';
+import 'exercises_screens/bench_press_screen.dart';
+import 'exercises_screens/deadlift_screen.dart';
+import 'exercises_screens/počep_screen.dart';
+//import 'exercises_screens/tek_screen.dart';
+import 'exercises_screens/kolesarjenje_screen.dart';
+import 'exercises_screens/jumping_jacks_screen.dart';
+import 'exercises_screens/overhead_press_screen.dart';
+import 'exercises_screens/pull-up_screen.dart';
+import 'exercises_screens/biceps_curl_screen.dart';
+import 'exercises_screens/cable_rope_pushdown_screen.dart';
+import 'exercises_screens/bent_over_barbell_row_screen.dart';
+import 'exercises_screens/incline_barbell_bench_press_screen.dart';
+import 'exercises_screens/dumbbell_flat_bench_press_screen.dart';
+import 'exercises_screens/incline_dumbbell_fly_screen.dart';
+import 'exercises_screens/dips_screen.dart';
+import 'exercises_screens/trap_bar_deadlift_screen.dart';
+import 'exercises_screens/dumbbell_row_screen.dart';
 import 'package:dio/dio.dart';
 import 'models/exercise.dart';
 
@@ -169,10 +187,28 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 );
                 break;
               case 1:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
                 // Do nothing as we're already on the Exercises screen
                 break;
               case 2:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
               case 3:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
               case 4:
                 Navigator.push(
                   context,
@@ -233,6 +269,172 @@ class _ExerciseCardState extends State<ExerciseCard> {
             });
           },
         ),
+        onTap: () {
+          // Check if the exercise name is "Bench Press"
+          if (widget.exercise.name.toLowerCase() == "bench press") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    BenchPressScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "deadlift") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    DeadliftScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "počep") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    SquatScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "tek") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RunScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "kolesarjenje") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CyclingScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "jumping jacks") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    JacksScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "overhead press") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    OverheadScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "pull-up") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PullupScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "biceps curl") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    BicepsScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "cable rope pushdown") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CableRopeScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "bent over barbell row") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    RowingScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "incline barbell bench press") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    InclineBenchScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "dumbbell flat bench press") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    DumbellBenchScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "incline dumbbell fly") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FlyScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "dips") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    DipsScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() ==
+              "trap bar deadlift") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    TrapDeadliftScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else if (widget.exercise.name.toLowerCase() == "dumbbell row") {
+            // Navigate to BenchPressScreen with exerciseId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    DumbbelRowScreen(exerciseId: widget.exercise.id),
+              ),
+            );
+          } else {
+            // Dynamically create the screen route based on the exercise name
+            String exerciseRoute =
+                '${widget.exercise.name.toLowerCase().replaceAll(' ', '_')}_screen';
+            Navigator.pushNamed(context, exerciseRoute);
+          }
+        },
       ),
     );
   }
