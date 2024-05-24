@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
-import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget2.dart';
+import 'exercise_widget/exercise_details_widget3.dart'; // Import ExerciseDetailsWidget2
 
 class BenchPressScreen extends StatefulWidget {
   final String exerciseId;
@@ -56,8 +57,8 @@ class _BenchPressScreenState extends State<BenchPressScreen> {
               Column(
                 children: [
                   ExerciseDetailsWidget(
-                    series: exerciseDetails['series'] ?? 3,
-                    repetitions: exerciseDetails['repetitions'] ?? '3-6',
+                    series: exerciseDetails['series'] ?? 0,
+                    repetitions: exerciseDetails['repetitions'] ?? '0',
                     duration: exerciseDetails['duration'] ?? 0,
                   ),
                   SizedBox(height: 20),
@@ -107,20 +108,14 @@ class _BenchPressScreenState extends State<BenchPressScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Vležite se na ravno klop s telesno težo, ki počiva na zadnjici in zgornjih mišicah hrbta.
-- Hrbet je ukrivljen, stopala prtisnite ob tla. 
-- Palico dvignite v celoti. Nato palico spustite do prsnega koša (palica se mora dotakniti prsnega koša), jo tam malo zaustavite in nato dvignite v začetni položaj.
-- Potisnite utež navzgor, dokler se vaše roke ne zasukajo pod kotom 45 stopinj na vrhu.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

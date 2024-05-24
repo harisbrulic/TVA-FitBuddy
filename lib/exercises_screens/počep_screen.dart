@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class SquatScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _SquatScreenState extends State<SquatScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Stojte z nogami na širini ramen ali širše, če je potrebno. Začnite tako, da potisnete boke nazaj in spustite telo tako, da se upognete v bokih, kot da bi sedeli. 
-- Nadaljujte ta gibanje navzdol, dokler vaše stegna niso pod kotom, ki je nižji od vzporednice s tlemi, pri tem pa pazite, da so vaša kolena usmerjena v isto smer kot vaše noge. Zadržite za eno sekundo. 
-- Potisnite se skozi stopala, medtem ko izravnavate boke in kolena, dokler ne stojite v začetnem položaju.
-- Prsni koš mora biti pokončen. Hrbet mora biti raven (se ne sme upogibati).
-- Pri počepu kolena naj ne gredo pred stopala.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

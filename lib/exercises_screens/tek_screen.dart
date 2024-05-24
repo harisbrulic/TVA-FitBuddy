@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class RunScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,18 +108,14 @@ class _RunScreenState extends State<RunScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Oseba, ki izvaja vajo, teče v želenem tempu po določeni poti. 
-- Tek lahko vključuje različne hitrosti, razdalje in terene, odvisno od ciljev in sposobnosti posameznika.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class BicepsScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _BicepsScreenState extends State<BicepsScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Primite uteži z rokami ob telesu, dlani obrnjene navzgor.
-- Komolce imejte tesno ob telesu in dvignite uteži proti ramenom.
-- Med dvigovanjem stisnite bicepse in zadržite za trenutek na vrhu.
-- Počasi spustite uteži nazaj v začetni položaj, pri tem pa nadzirajte gibanje.
-- Ponovite vajo po načrtovanem številu ponovitev.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

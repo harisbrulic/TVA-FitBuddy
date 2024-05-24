@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class CableRopeScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _CableRopeScreenState extends State<CableRopeScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Primite vrv z obrnjeno držo, z rokami skupaj.
-- Stopala postavite v širino ramen, z rahlo pokrčenimi koleni za stabilnost.
-- Potisnite vrv navzdol in jo povlecite narazen, tako da se vaše roke končajo ob bokih na dnu giba.
-- Hrbet mora biti skozi izvajanje raven (se ne sme upogibati).
-- Čim manj si pomagamo s prsnim košem in hrbtom (izoliramo izvajanje čimbolj na triceps).''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

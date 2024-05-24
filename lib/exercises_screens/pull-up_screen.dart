@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class PullupScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,20 +108,14 @@ class _PullupScreenState extends State<PullupScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Oseba, ki izvaja vajo, se povzpne na vodoravno palico, pri čemer so dlani obrnjene stran od telesa in roke nekoliko širše od širine ramen. 
-- Z iztegnjenimi rokami in aktivirano jedrom, se dvigne tako, da brado pripelje nad palico. 
-- Počasi se spusti nazaj v začetni položaj, pri čemer ohranja nadzor nad gibanjem. To je ena ponovitev (ponovitev). Ponavljajte gibe brez prekinitev.
-- Pri vsaki ponovitvni popolnoma iztegnite roke in pri dvigu naj gre brada nad palico.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class DumbbelRowScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,20 +108,14 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Nagnite se naprej na klop, eno koleno na klopi. Z nevtralnim prijemom držite dumbbell v eni roki, tako da je vaša dlan obrnjena navznoter. 
-- Vaša roka naj bo popolnoma iztegnjena in visi naravnost navzdol. To je začetni položaj. Potegnite dumbbell s tal proti boku, upognite komolec in potegnite lopatico nazaj. 
-- Vrnite se v začetni položaj. Nadzirajte spust uteži, ne dovolite, da bi se dumbbell spustil s težo gravitacije.
-- Hrbet mora biti raven (ne sme se upogibati).''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

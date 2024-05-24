@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class DipsScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,20 +108,14 @@ class _DipsScreenState extends State<DipsScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Pri izvajanju te vaje se uporabnik obesi na dva vzporedna drogova in se spusti navzdol. Dovolite, da vaša telesna teža visi, tako da jo podpirajo vaše roke in ramena. Ohranite raven bok. 
-- Spustite telo, tako da počasi upogibate komolce in se rahlo nagnete naprej ter nadaljujte navzdol, dokler ne začutite raztezanja v prsih, ramenih in tricepsih. 
-- Vaš komolčni sklep naj bo približno pod kotom 90 stopinj na dnu gibanja.
-- Za večji učinek si lahko okoli pasu obesite dodatne uteži''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class TrapDeadliftScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _TrapDeadliftScreenState extends State<TrapDeadliftScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Stojte v notranjosti ogrodja. Stojte v širini ramen s stopali obrnjenimi naravnost naprej.
-- Počepnite in pri tem ohranjajte hrbet raven in prsni koš dvignjen. Primite ročaje na vsaki strani ogrodja. Potegnite lopatice navzdol. 
-- Napnite jedro in potisnite težo skozi noge, medtem ko dvigujete palico s tal. Ko dvigujete palico, se bodo boki in ramena dvignili, 
-- Hrbet naj ostane raven. Spustite palico nazaj na tla, pri tem pa jo držite čim bližje nogam.
-- Med izvajanje mora biti hrbet raven (se ne sme upogibati).''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

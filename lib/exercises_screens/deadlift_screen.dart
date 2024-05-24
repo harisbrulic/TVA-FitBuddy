@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class DeadliftScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _DeadliftScreenState extends State<DeadliftScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Postavite se pred drog s stopali čim bližje drogu. Razporedite stopala v širini ramen. Stopala lahko kažejo naravnost naprej ali rahlo navzven. 
-- Pokrčite se, ohranite hrbet naravnost in prijemite drog z dvojnim oprijemom ali eno roko nad in eno pod v širini ramen. Potegnite lopatice navzdol. 
-- Napnite jedro in z nogami pritisnite težo skozi stopala, ko dvignete drog. Med dvigovanjem droga se bodo vaše boke in ramena dvignili skupaj, hrbet pa naj bo ravno. 
-- Spustite drog nazaj na tla, tako da drog ostane čim bližje nogam.
-- Med izvajanje mora biti hrbet raven (se ne sme upogibati)''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

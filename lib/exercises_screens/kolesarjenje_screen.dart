@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class CyclingScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,18 +108,14 @@ class _CyclingScreenState extends State<CyclingScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Oseba, ki izvaja vajo, sedi na kolesu in s pedaliranjem premika kolo naprej. 
-- Nastavitev hitrosti in intenzivnosti vožnje je odvisna od posameznikovih ciljev in trenutne telesne pripravljenosti.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class RowingScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,21 +108,14 @@ class _RowingScreenState extends State<RowingScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Postavite palico na tla ali stojalo in stopite pred njo s stopali nekoliko širšimi od širine ramen ter rahlo upognjenimi koleni.
-- Nagnite se naprej v pasu in primite palico s podaljšanim oprijemom. Hrbet držite naravnost pod kotom 45 stopinj. Glavo in vrat držite naravnost. 
-- To je začetni položaj. Ne premikajte trupa, izdihnite in dvignite palico do prepogne v boku.
-- Komolce imejte blizu telesa in stisnite mišice hrbta.
-- Hrbet mora biti vedno raven. Jedro (trup) mora biti aktiviran skozi celotno vajo.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

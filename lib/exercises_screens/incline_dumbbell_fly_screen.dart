@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class FlyScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,23 +108,14 @@ class _FlyScreenState extends State<FlyScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Lezite na nagibni klopi in v vsaki roki držite dumbbell. 
-- Dumbbella držite z obrnjenim oprijemom, tako da sta naravnost nad prsmi. Dlan naj bo obrnjena druga proti drugi. 
-- Stopala postavite na tla v liniji ali za koleni. Ustvarite lok v spodnjem delu hrbta in potisnite prsni koš navzgor. 
-- Počasi spustite dumbbell ven in navzdol do ravni prsnega koša v polkrožni formaciji z upognjenimi komolci (zamah metuljevih kril). Spustite čepe do ravni prsnega koša. 
-- Čutiti bi morali raztezanje čez prsni koš.
-- Ko potiskate dumbbelle navzgor, premikajte roke v loku, da pripeljete dumbbella skupaj, dokler se ne srečata nad središčem prsnega koša.
-- Prsni koš in jedro sta neprestano napeta.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class OverheadScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,20 +108,14 @@ class _OverheadScreenState extends State<OverheadScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Oseba, ki izvaja vajo, stoji pokonci z nogami na širini ramen in drži uteži na ravni ramen z dlanmi obrnjenimi naprej. 
-- Nato iztegne roke navzgor, pri čemer poravna komolce, in dvigne uteži nad glavo, dokler niso roke skoraj popolnoma iztegnjene. 
-- Počasi spusti uteži nazaj v začetni položaj. To je ena ponovitev (ponovitev). Ponavljajte gibe brez prekinitev.
-- Hrbet in jedro morata ostati črvsta skozi celotno vadbo (hrbet se ne sme upogibati).''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

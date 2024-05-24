@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class InclineBenchScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,23 +108,14 @@ class _InclineBenchScreenState extends State<InclineBenchScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Lezite na nagibno klop in položite roke na drog, pri čemer ga primete nekoliko širše od širine ramen. 
-- Stopala postavite na tla v liniji ali za kolena. Ustvarite lok v spodnjem delu hrbta in potisnite prsni koš navzgor. 
-- Dvignite drog iz stojala, tako da bo nad prsmi. Spustite drog neposredno navzdol proti prsnemu košu, pri čemer so komolci usmerjeni približno pod kotom 45 stopinj. 
-- Ko drog doseže prsni koš, ustavite se, nato pa ga ponovno potisnite navzgor. Nadaljujte, dokler ne dokončate vseh ponovitev, nato pa vrnite drog nazaj na stojalo.
-- Če ste novi pri tej vadbi, imejte nekoga, ki vam pomaga.
-- Če ni nikogar, ki bi vam lahko pomagal, bodite previdni pri izbiri teže.
-- Vadbo lahko izvedete tudi z uporabo naprave Smith Machine.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class DumbellBenchScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,20 +108,14 @@ class _DumbellBenchScreenState extends State<DumbellBenchScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Lezite na ravno klop in v vsako roko vzemite utež z ročajem, pri čemer je ročaj usmerjen naprej. 
-- Postavite stopala na tla in jih poravnajte s koleni (stopala so lahko tudi za njimi). Naredite lok v spodnjem delu hrbta in potisnite prsni koš navzgor. 
-- Dlan naj bo obrnjena naprej. Počasi spustite uteži ven in navzdol do ravni prsi, pri čemer so komolci usmerjeni pod kotom 45 stopinj.
-- Pazite na pravilen kot komolcev (do 45 stopinj).''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),

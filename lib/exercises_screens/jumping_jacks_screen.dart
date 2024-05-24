@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'exercise_widget/exercise_details_widget3.dart';
 
 class JacksScreen extends StatefulWidget {
   final String exerciseId;
@@ -107,19 +108,14 @@ class _JacksScreenState extends State<JacksScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '''- Oseba, ki izvaja vajo, stoji pokonci z nogami skupaj in rokami ob straneh telesa. 
-- Nato skoči v zrak, medtem ko razpravi noge široko in hkrati roke dvigne nad glavo, tako da se dotaknejo. 
-- Nato se vrne v začetni položaj, s skokom, ki združi noge in spusti roke ob straneh. To je ena ponovitev (ponovitev). Ponavljajte gibe brez prekinitev.''',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                    SizedBox(height: 20),
+                    ExerciseDetailsWidget3(
+                      description: exerciseDetails['description'] ?? '',
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
             ],
           ),
         ),
