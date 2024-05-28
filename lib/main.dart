@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -53,6 +54,28 @@ class LoginPage extends StatelessWidget {
       User? user =
           await _firebaseService.signInWithEmailAndPassword(email, password);
       if (user != null) {
+        // Save email to local storage
+        await _saveEmailToLocalStorage(email);
+
+        // Show alert dialog with user ID
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('User ID'),
+              content: Text('User ID: ${user.uid}'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+
         // Navigate to the home screen after successful login
         Navigator.pushReplacement(
           context,
@@ -70,6 +93,11 @@ class LoginPage extends StatelessWidget {
         SnackBar(content: Text('Please enter both email and password.')),
       );
     }
+  }
+
+  Future<void> _saveEmailToLocalStorage(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
   }
 
   @override
