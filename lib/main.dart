@@ -1,7 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -14,7 +21,57 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class FirebaseService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final UserCredential userCredential =
+          await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } catch (e) {
+      print('Error signing in: $e');
+      return null;
+    }
+  }
+}
+
 class LoginPage extends StatelessWidget {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseService _firebaseService = FirebaseService();
+
+  Future<void> _login(BuildContext context) async {
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (email.isNotEmpty && password.isNotEmpty) {
+      User? user =
+          await _firebaseService.signInWithEmailAndPassword(email, password);
+      if (user != null) {
+        // Navigate to the home screen after successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } else {
+        // Show error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to sign in. Please try again.')),
+        );
+      }
+    } else {
+      // Show error message if email or password is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter both email and password.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +105,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8.0),
                   TextField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -79,6 +137,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8.0),
                   TextField(
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       prefixIcon: Padding(
@@ -98,31 +157,11 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 16.0),
-              Row(
-                children: <Widget>[
-                  Checkbox(value: false, onChanged: (bool? value) {}),
-                  Text(
-                    'Zapomni si me',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
               Center(
                 child: Container(
                   width: 170,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                    },
+                    onPressed: () => _login(context),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 12.0),
                       backgroundColor: Color(0xFFFED467),
@@ -155,7 +194,7 @@ class LoginPage extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  // tukaj bo registration page
+                  // Navigate to registration page
                 },
                 child: Text(
                   'Registriraj se tukaj.',
