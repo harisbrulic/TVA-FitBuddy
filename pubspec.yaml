@@ -13,6 +13,7 @@ dependencies:
   dio: ^4.0.0
   cupertino_icons: ^1.0.6
   flutter_svg: ^0.22.0
+  animated_text_kit: ^4.2.1
 
 dev_dependencies:
   flutter_test:
@@ -27,6 +28,12 @@ flutter:
     - assets/icons/lock.png
     - assets/icons/potisk.png
     - assets/icons/home.png
+    - assets/icons/name.png
+    - assets/icons/image.png
+    - assets/images/onboarding1.png
+    - assets/images/onboarding2.png
+    - assets/images/onboarding3.png
+    - assets/images/onboarding4.png
     - assets/exercise_gifs/bench_press.gif
     - assets/exercise_gifs/deadlift.gif
     - assets/exercise_gifs/squat.gif
