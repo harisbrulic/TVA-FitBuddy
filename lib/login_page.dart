@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'register.dart';
 import 'onboarding_1.dart';
 
@@ -9,6 +10,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController(); // Added email controller
   final _passwordController = TextEditingController();
   bool _obscureText = true;
 
@@ -59,6 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 8.0),
                 TextField(
+                  controller: _emailController, // Added controller
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.all(12.0),
@@ -139,11 +142,16 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 width: 170,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      await prefs.setString(
+                          'userEmail', _emailController.text); // Save email
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => OnboardingScreen1()),
+                        MaterialPageRoute(
+                            builder: (context) => OnboardingScreen1()),
                       );
                     }
                   },

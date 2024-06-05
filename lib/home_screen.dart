@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'exercise_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -8,6 +9,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+  }
+
+  _loadUserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userEmail = prefs.getString('userEmail');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.black,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                    },
-                    child: Text(
-                      'Domov',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                        color: _selectedIndex == 0 ? Colors.black : Colors.grey,
-                      ),
+                  Text(
+                    'User ID: $userEmail', // Display the user email
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -67,8 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons
-                .directions_run), // Use the DirectionsRun icon for exercises
+            icon: Icon(Icons.directions_run),
             label: 'Exercises',
           ),
           BottomNavigationBarItem(
@@ -85,56 +91,40 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor:
-            Color(0xFFFED467), // Change selected item color to yellow
-        unselectedItemColor: Colors.grey, // Set unselected item color to gray
+        selectedItemColor: Color(0xFFFED467),
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
             switch (index) {
               case 0:
-                // Navigate to home_screen.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace HomeScreen() with your home screen widget
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
                 break;
               case 1:
-                // Navigate to exercises_screen.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          ExerciseScreen()), // Replace ExerciseScreen() with your exercise screen widget
+                  MaterialPageRoute(builder: (context) => ExerciseScreen()),
                 );
                 break;
               case 2:
-                // Navigate to input_screen.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace InputScreen() with your input screen widget
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
                 break;
               case 3:
-                // Navigate to analytics_screen.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace AnalyticsScreen() with your analytics screen widget
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
                 break;
               case 4:
-                // Navigate to profile_screen.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace ProfileScreen() with your profile screen widget
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
                 break;
             }

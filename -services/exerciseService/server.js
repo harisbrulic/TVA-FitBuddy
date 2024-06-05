@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Exercise = require('./Models/Exercise');
+const ExerciseUser = require('./Models/ExerciseUser');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
@@ -29,12 +30,21 @@ app.get('/', async (req, res) => {
 
 app.get('/favourites', async (req, res) => {
   try {
-    const exercises = await Exercise.find({ favourite: true && userId === req.body.userId });
+    const exercises = await ExerciseUser.find( /*userId === req.body.userId*/);
     res.json(exercises);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
+/*app.get('/favourites', async (req, res) => {
+  try {
+    const exercises = await Exercise.find({ favourite: true && userId === req.body.userId });
+    res.json(exercises);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});*/
 
 app.get('/:id', async (req, res) => {
   try {
