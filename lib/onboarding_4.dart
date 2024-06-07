@@ -78,7 +78,7 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.arrow_forward,
+                            Icons.check,
                             color: Color(0xFF7F6A34),
                           ),
                         ),
