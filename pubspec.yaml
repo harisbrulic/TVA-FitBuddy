@@ -14,6 +14,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^0.22.0
   animated_text_kit: ^4.2.1
+  table_calendar: ^3.0.0
+  intl: ^0.17.0
   
 
 dev_dependencies:
@@ -33,8 +35,10 @@ flutter:
     - assets/icons/name.png
     - assets/icons/image.png
     - assets/icons/vnos.png
+    - assets/icons/fire.png
     - assets/images/tekdanes.png
     - assets/images/kajzakosilo.png
+    - assets/icons/waterglass.png
     - assets/images/jogazazacetnike.png
     - assets/icons/analyticsgray.png
     - assets/icons/exercisesgray.png

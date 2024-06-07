@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'onboarding_2.dart';
-import 'home_screen.dart';
+import '../home_screen.dart';
 
 class OnboardingScreen1 extends StatefulWidget {
   @override

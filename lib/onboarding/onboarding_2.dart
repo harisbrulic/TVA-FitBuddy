@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'onboarding_4.dart';
-import 'home_screen.dart';
+import 'onboarding_3.dart';
+import '../home_screen.dart';
 
-class OnboardingScreen3 extends StatefulWidget {
+class OnboardingScreen2 extends StatefulWidget {
   @override
-  _OnboardingScreen3State createState() => _OnboardingScreen3State();
+  _OnboardingScreen2State createState() => _OnboardingScreen2State();
 }
 
-class _OnboardingScreen3State extends State<OnboardingScreen3> {
+class _OnboardingScreen2State extends State<OnboardingScreen2> {
   void _showSkipDialog() {
     showDialog(
       context: context,
@@ -43,7 +43,7 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: ConstrainedBox(
+        child: ConstrainedBox( 
           constraints: BoxConstraints(
             minHeight: MediaQuery.of(context).size.height,
           ),
@@ -79,13 +79,13 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
                     color: Colors.white,
                   ),
                   Container(
-                    height: 252.0,
-                    width: 332.0,
-                    child: Image.asset('assets/images/onboarding3.png'),
+                    height: 273.0,
+                    width: 114.0,
+                    child: Image.asset('assets/images/onboarding2.png'),
                   ),
                   SizedBox(height: 28),
                   Text(
-                    'Sestavljanje treningov',
+                    'Ustvarjanje in nadzor nad vajami',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
@@ -95,7 +95,7 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Treninge lahko najdeš na zavihku Treningi. Poleg vrivzetih, lahko ustvariš tudi svoje s pomočjo vaj. Tako si lahko sebi prilagodiš vsak trening. Ustvari jih glede na počutje in energijo.',
+                    'Vaja je osnovni del treninga. V zavihku Vaje na voljo imaš pregled nad tvojimi najljubšimi vajami. Če katero ne najdeš, jo lahko enostano ustvariš.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -113,7 +113,7 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => OnboardingScreen4()),
+                            MaterialPageRoute(builder: (context) => OnboardingScreen3()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -137,9 +137,9 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
                     children: [
                       Icon(Icons.circle, size: 8, color: Color(0xfff2f2f2)),
                       SizedBox(width: 8),
-                      Icon(Icons.circle, size: 8, color: Color(0xfff2f2f2)),
-                      SizedBox(width: 8),
                       Icon(Icons.circle, size: 8, color: Color(0xffb3b2b4)),
+                      SizedBox(width: 8),
+                      Icon(Icons.circle, size: 8, color: Color(0xfff2f2f2)),
                       SizedBox(width: 8),
                       Icon(Icons.circle, size: 8, color: Color(0xfff2f2f2)),
                     ],
