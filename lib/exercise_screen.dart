@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'exercises_screens/ExerciseDetails.dart';
 import 'home_screen.dart';
+import 'user_screen.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -12,29 +14,75 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   late Future<List<Exercise>> futureExercises;
   bool _isVajeSelected = true;
   int _selectedIndex = 1;
+  late String _token = '';
+  late int _userId = 0;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    futureExercises = fetchExercises();
+    _loadToken();
+    _loadUserId();
+    futureExercises = fetchExercises(); // Initialize futureExercises
+  }
+
+  Future<void> _loadToken() async {
+    try {
+      final token = await _secureStorage.read(key: 'token');
+      if (token != null) {
+        setState(() {
+          _token = token;
+          print('Loaded token: $_token'); //debug
+          futureExercises =
+              fetchExercises(); // kličem fetchExercises komaj, ko se naloži token (drugače moram stran osvežiti, da mi jih pravilno pokaže)
+        });
+      } else {
+        print('Failed to load token: Key not found');
+      }
+    } catch (e) {
+      print('Error loading token: $e');
+    }
+  }
+
+  Future<void> _loadUserId() async {
+    try {
+      final userIdString = await _secureStorage.read(key: 'userId');
+      if (userIdString != null) {
+        final userId = int.parse(userIdString);
+        setState(() {
+          _userId = userId;
+          print('Loaded userId: $_userId'); //debug
+        });
+      } else {
+        print('Failed to load userId: Key not found');
+      }
+    } catch (e) {
+      print('Error loading userId: $e');
+    }
   }
 
   Future<List<Exercise>> fetchExercises() async {
     try {
+      final dio = Dio();
       final response = _isVajeSelected
-          ? await Dio().get('http://localhost:3000/')
-          : await Dio().get('http://localhost:3000/favourites');
-
+          ? await dio.get(
+              'http://localhost:3000/',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            )
+          : await dio.get(
+              'http://localhost:3000/favourites',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            );
       if (response.statusCode == 200) {
         List jsonResponse = response.data;
         return jsonResponse
             .map((exercise) => Exercise.fromJson(exercise))
             .toList();
       } else {
-        throw Exception('Failed to load exercises');
+        throw Exception('Napaka pri nalaganju vaj');
       }
     } catch (e) {
-      throw Exception('Failed to load exercises');
+      throw Exception('Napaka pri nalaganju vaj');
     }
   }
 
@@ -117,7 +165,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      return ExerciseCard(exercise: snapshot.data![index]);
+                      return ExerciseCard(
+                        exercise: snapshot.data![index],
+                        userId: _userId,
+                        token: _token,
+                        //tukaj pošiljam spremenljivke iz starševksega objekta na "otroka"
+                      );
                     },
                   );
                 } else if (snapshot.hasError) {
@@ -195,7 +248,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => UserScreen(),
                   ),
                 );
                 break;
@@ -235,8 +288,11 @@ class Exercise {
 
 class ExerciseCard extends StatefulWidget {
   final Exercise exercise;
+  final int userId;
+  final String token;
 
-  ExerciseCard({required this.exercise});
+  ExerciseCard(
+      {required this.exercise, required this.userId, required this.token});
 
   @override
   _ExerciseCardState createState() => _ExerciseCardState();
@@ -245,37 +301,94 @@ class ExerciseCard extends StatefulWidget {
 class _ExerciseCardState extends State<ExerciseCard> {
   bool _isFavorite = false;
 
-  Future<void> toggleFavorite() async {
-    try {
-      final response = await Dio().post(
-        'http://localhost:3000/favorite',
-        data: {'favourite': !_isFavorite},
-      );
-
-      if (response.statusCode == 201) {
-        setState(() {
-          _isFavorite = !_isFavorite;
-        });
-      }
-    } catch (e) {
-      print('Failed to toggle favorite exercise: $e');
-    }
-  }
-
   Future<void> postExercise() async {
     try {
+      // Log the exercise details being posted
+      print('Posting exercise: ${widget.exercise.toJson()}');
+
+      // Log the user ID being sent with the request
+      print('User ID: ${widget.userId}');
+
       final response = await Dio().post(
-        'http://localhost:3000/favorite', // Replace with your endpoint
-        data: widget.exercise.toJson(),
+        'http://localhost:3000/favorite',
+        data: {
+          ...widget.exercise.toJson(),
+          'userId': widget.userId,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer ${widget.token}'},
+        ),
       );
+      print(response);
 
       if (response.statusCode == 201) {
-        print('Exercise posted successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vaja uspešno dodana med všečkane vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       } else {
-        throw Exception('Failed to post exercise');
+        print('Failed to post exercise: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Neuspeh pri dodajanju vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
       print('Error posting exercise: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Vaja je že dodana med všečkane vaje'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteExercise() async {
+    try {
+      print('Deleting exercise: ${widget.exercise.name}');
+      print('User ID: ${widget.userId}');
+
+      final response = await Dio().delete(
+        'http://localhost:3000/favorite',
+        data: {
+          'name': widget.exercise.name,
+          'userId': widget.userId,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer ${widget.token}'},
+        ),
+      );
+      print(response);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vaja uspešno odstranjena iz všečkanih vaj'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to delete exercise: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Neuspeh pri odstranjevanju vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error deleting exercise: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Napaka pri odstranjevanju vaje'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -305,25 +418,47 @@ class _ExerciseCardState extends State<ExerciseCard> {
               fontFamily: 'Montserrat',
             ),
           ),
-          subtitle: Text(
-            "Duration: ${widget.exercise.duration} minutes",
-            style: TextStyle(
-              fontSize: 12,
-              fontFamily: 'Montserrat',
-            ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Duration: ${widget.exercise.duration} minutes",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              Text(
+                "Calories: ${widget.exercise.calories} kcal",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
           ),
-          trailing: IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? Colors.red : null, // Adjusted color
-            ),
-            onPressed: () {
-              if (_isFavorite) {
-                toggleFavorite();
-              } else {
-                postExercise();
-              }
-            },
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  postExercise();
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.remove,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  deleteExercise();
+                },
+              ),
+            ],
           ),
         ),
       ),

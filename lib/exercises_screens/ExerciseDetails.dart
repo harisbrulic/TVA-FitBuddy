@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetailsWidget
-import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'exercise_widget/exercise_details_widget.dart';
+import 'exercise_widget/exercise_details_widget2.dart';
 import 'exercise_widget/exercise_details_widget3.dart';
 
 class ExerciseDetailsScreen extends StatefulWidget {
@@ -15,18 +16,45 @@ class ExerciseDetailsScreen extends StatefulWidget {
 }
 
 class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> {
+  final _secureStorage = FlutterSecureStorage();
+  String? _token;
   Map<String, dynamic> exerciseDetails = {};
 
   @override
   void initState() {
     super.initState();
-    fetchExerciseDetails();
+    _loadToken();
+  }
+
+  Future<void> _loadToken() async {
+    try {
+      final token = await _secureStorage.read(key: 'token');
+      if (token != null) {
+        setState(() {
+          _token = token;
+          print('Loaded token: $_token'); //debug
+          fetchExerciseDetails();
+        });
+      } else {
+        print('Failed to load token: Key not found');
+      }
+    } catch (e) {
+      print('Error loading token: $e');
+    }
   }
 
   Future<void> fetchExerciseDetails() async {
+    if (_token == null) {
+      print('Token is not loaded yet');
+      return;
+    }
     try {
-      final response =
-          await Dio().get('http://localhost:3000/${widget.exerciseId}');
+      final response = await Dio().get(
+        'http://localhost:3000/${widget.exerciseId}',
+        options: Options(
+          headers: {'Authorization': 'Bearer $_token'},
+        ),
+      );
       if (response.statusCode == 200) {
         setState(() {
           exerciseDetails = response.data;
@@ -96,13 +124,6 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Postopek izvedbe',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
                     SizedBox(height: 20),
                     ExerciseDetailsWidget3(
                       description: exerciseDetails['description'] ?? '',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'exercise_screen.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Import the package
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'user_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late String _username = '';
   final FlutterSecureStorage _secureStorage =
-      FlutterSecureStorage(); // Initialize FlutterSecureStorage
+      FlutterSecureStorage(); // začenem secure storage
 
   @override
   void initState() {
@@ -126,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               case 4:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                  MaterialPageRoute(builder: (context) => UserScreen()),
                 );
                 break;
             }
