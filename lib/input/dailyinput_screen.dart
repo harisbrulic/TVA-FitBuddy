@@ -115,7 +115,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [

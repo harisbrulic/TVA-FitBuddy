@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/dailyinput_screen';
-import 'home_screen.dart';
-import 'exercise_screen.dart';
+import 'package:flutter_application_1/input/dailyinput_screen.dart';
+import './home_screen.dart';
+import './exercise_screen.dart';
+import './analytics_screen.dart';
+
 
 class BottomNavbar extends StatefulWidget {
   final Widget body;
@@ -42,6 +44,12 @@ class _BottomNavbarState extends State<BottomNavbar> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DailyInputScreen()),
+          );
+          break;
+        case 3:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AnalyticsScreen()),
           );
           break;
       }
