@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Exercise = require('./Models/Exercise');
-const ExerciseUser = require('./Models/ExerciseUser');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
@@ -30,21 +29,12 @@ app.get('/', async (req, res) => {
 
 app.get('/favourites', async (req, res) => {
   try {
-    const exercises = await ExerciseUser.find( /*userId === req.body.userId*/);
-    res.json(exercises);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-/*app.get('/favourites', async (req, res) => {
-  try {
     const exercises = await Exercise.find({ favourite: true && userId === req.body.userId });
     res.json(exercises);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});*/
+});
 
 app.get('/:id', async (req, res) => {
   try {
@@ -78,6 +68,43 @@ app.post('/', async (req, res) => {
   try {
     const newExercise = await exercise.save();
     res.status(201).json(newExercise);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.post('/favorite', async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      duration,
+      calories,
+      type,
+      difficulty,
+      series,
+      repetitions,
+      favourite,
+      userId
+    } = req.body;
+
+    const newExercise = new ExerciseUser({
+      name,
+      description,
+      duration,
+      calories,
+      type,
+      difficulty,
+      series,
+      repetitions,
+      favourite,
+      userId,
+      created: new Date(),
+      updated: new Date()
+    });
+
+    const savedExercise = await newExercise.save();
+    res.status(201).json(savedExercise);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

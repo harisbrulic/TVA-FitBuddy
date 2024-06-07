@@ -7,7 +7,12 @@ const exerciseUserSchema = new mongoose.Schema({
   calories: Number,
   type: String,
   difficulty: String,
-  userId: String
+  series: Number,
+  repetitions: String,
+  favourite: Boolean,
+  userId: String,
+  created: { type: Date, default: Date.now },
+  updated: { type: Date, default: Date.now }
 });
 
 const ExerciseUser = mongoose.models.ExerciseUser || mongoose.model('ExerciseUser', exerciseUserSchema, 'excercisesuser');

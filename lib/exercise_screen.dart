@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'exercises_screens/ExerciseDetails.dart';
 import 'home_screen.dart';
 import 'package:dio/dio.dart';
-import 'models/exercise.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -212,22 +211,73 @@ class Exercise {
   final String id;
   final String name;
   final int duration; // Add duration field
+  final int calories;
 
-  Exercise({required this.id, required this.name, required this.duration});
+  Exercise(
+      {required this.id,
+      required this.name,
+      required this.duration,
+      required this.calories});
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
     return Exercise(
       id: json['_id'],
       name: json['name'],
       duration: json['duration'], // Assuming duration is an integer field
+      calories: json['calories'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'duration': duration, 'calories': calories};
   }
 }
 
-class ExerciseCard extends StatelessWidget {
+class ExerciseCard extends StatefulWidget {
   final Exercise exercise;
 
   ExerciseCard({required this.exercise});
+
+  @override
+  _ExerciseCardState createState() => _ExerciseCardState();
+}
+
+class _ExerciseCardState extends State<ExerciseCard> {
+  bool _isFavorite = false;
+
+  Future<void> toggleFavorite() async {
+    try {
+      final response = await Dio().post(
+        'http://localhost:3000/favorite',
+        data: {'favourite': !_isFavorite},
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+        });
+      }
+    } catch (e) {
+      print('Failed to toggle favorite exercise: $e');
+    }
+  }
+
+  Future<void> postExercise() async {
+    try {
+      final response = await Dio().post(
+        'http://localhost:3000/favorite', // Replace with your endpoint
+        data: widget.exercise.toJson(),
+      );
+
+      if (response.statusCode == 201) {
+        print('Exercise posted successfully');
+      } else {
+        throw Exception('Failed to post exercise');
+      }
+    } catch (e) {
+      print('Error posting exercise: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -237,8 +287,8 @@ class ExerciseCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ExerciseDetailsScreen(
-              exerciseId: exercise.id,
-              exerciseName: exercise.name,
+              exerciseId: widget.exercise.id,
+              exerciseName: widget.exercise.name,
             ),
           ),
         );
@@ -248,7 +298,7 @@ class ExerciseCard extends StatelessWidget {
         margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: ListTile(
           title: Text(
-            exercise.name,
+            widget.exercise.name,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -256,11 +306,24 @@ class ExerciseCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            "Duration: ${exercise.duration} minutes",
+            "Duration: ${widget.exercise.duration} minutes",
             style: TextStyle(
               fontSize: 12,
               fontFamily: 'Montserrat',
             ),
+          ),
+          trailing: IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite ? Colors.red : null, // Adjusted color
+            ),
+            onPressed: () {
+              if (_isFavorite) {
+                toggleFavorite();
+              } else {
+                postExercise();
+              }
+            },
           ),
         ),
       ),

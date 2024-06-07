@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'exercise_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Import the package
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,19 +9,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  String? userEmail;
+  late String _username = '';
+  final FlutterSecureStorage _secureStorage =
+      FlutterSecureStorage(); // Initialize FlutterSecureStorage
 
   @override
   void initState() {
     super.initState();
-    _loadUserEmail();
+    _loadUsername();
   }
 
-  _loadUserEmail() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userEmail = prefs.getString('userEmail');
-    });
+  Future<void> _loadUsername() async {
+    try {
+      final username = await _secureStorage.read(key: 'username');
+      if (username != null) {
+        setState(() {
+          _username = username;
+          print('Loaded username: $_username');
+        });
+      } else {
+        print('Failed to load username: Key not found');
+      }
+    } catch (e) {
+      print('Error loading username: $e');
+    }
   }
 
   @override
@@ -39,20 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Zdravo Nina',
+                    'Zdravo $_username',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'User ID: $userEmail', // Display the user email
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
                   ),
