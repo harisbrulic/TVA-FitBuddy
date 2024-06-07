@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/exercises_screens/tek_screen.dart';
+import 'exercises_screens/ExerciseDetails.dart';
 import 'home_screen.dart';
-import 'exercises_screens/bench_press_screen.dart';
-import 'exercises_screens/deadlift_screen.dart';
-import 'exercises_screens/počep_screen.dart';
-//import 'exercises_screens/tek_screen.dart';
-import 'exercises_screens/kolesarjenje_screen.dart';
-import 'exercises_screens/jumping_jacks_screen.dart';
-import 'exercises_screens/overhead_press_screen.dart';
-import 'exercises_screens/pull-up_screen.dart';
-import 'exercises_screens/biceps_curl_screen.dart';
-import 'exercises_screens/cable_rope_pushdown_screen.dart';
-import 'exercises_screens/bent_over_barbell_row_screen.dart';
-import 'exercises_screens/incline_barbell_bench_press_screen.dart';
-import 'exercises_screens/dumbbell_flat_bench_press_screen.dart';
-import 'exercises_screens/incline_dumbbell_fly_screen.dart';
-import 'exercises_screens/dips_screen.dart';
-import 'exercises_screens/trap_bar_deadlift_screen.dart';
-import 'exercises_screens/dumbbell_row_screen.dart';
 import 'package:dio/dio.dart';
-import 'models/exercise.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -28,7 +10,7 @@ class ExerciseScreen extends StatefulWidget {
 
 class _ExerciseScreenState extends State<ExerciseScreen> {
   late Future<List<Exercise>> futureExercises;
-  bool _isVajeSelected = true; // State to toggle between "Vaje" and "Treningi"
+  bool _isVajeSelected = true;
   int _selectedIndex = 1;
 
   @override
@@ -39,10 +21,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   Future<List<Exercise>> fetchExercises() async {
     try {
-      // Fetch exercises for "Vaje" or "Treningi" based on the state
       final response = _isVajeSelected
-          ? await Dio().get('http://localhost:3000/exercises')
-          : await Dio().get('http://localhost:3000/exercises/favourites');
+          ? await Dio().get('http://localhost:3000/')
+          : await Dio().get('http://localhost:3000/favourites');
 
       if (response.statusCode == 200) {
         List jsonResponse = response.data;
@@ -73,7 +54,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _isVajeSelected = false; // Show "Treningi" content
+                    _isVajeSelected = false;
                     futureExercises = fetchExercises();
                   });
                 },
@@ -81,8 +62,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   backgroundColor: _isVajeSelected
                       ? MaterialStateProperty.all<Color>(Colors.white)
                       : MaterialStateProperty.all<Color>(Color(0xFFFED467)),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                      Colors.black), // Text color
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                       EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -101,7 +82,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _isVajeSelected = true; // Show "Vaje" content
+                    _isVajeSelected = true;
                     futureExercises = fetchExercises();
                   });
                 },
@@ -109,8 +90,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   backgroundColor: _isVajeSelected
                       ? MaterialStateProperty.all<Color>(Color(0xFFFED467))
                       : MaterialStateProperty.all<Color>(Colors.white),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                      Colors.black), // Text color
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                       EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -190,10 +171,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => ExerciseScreen(),
                   ),
                 );
-                // Do nothing as we're already on the Exercises screen
                 break;
               case 2:
                 Navigator.push(
@@ -202,6 +182,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     builder: (context) => HomeScreen(),
                   ),
                 );
+                break;
               case 3:
                 Navigator.push(
                   context,
@@ -209,6 +190,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     builder: (context) => HomeScreen(),
                   ),
                 );
+                break;
               case 4:
                 Navigator.push(
                   context,
@@ -225,6 +207,32 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 }
 
+class Exercise {
+  final String id;
+  final String name;
+  final int duration; // Add duration field
+  final int calories;
+
+  Exercise(
+      {required this.id,
+      required this.name,
+      required this.duration,
+      required this.calories});
+
+  factory Exercise.fromJson(Map<String, dynamic> json) {
+    return Exercise(
+      id: json['_id'],
+      name: json['name'],
+      duration: json['duration'], // Assuming duration is an integer field
+      calories: json['calories'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'duration': duration, 'calories': calories};
+  }
+}
+
 class ExerciseCard extends StatefulWidget {
   final Exercise exercise;
 
@@ -235,206 +243,89 @@ class ExerciseCard extends StatefulWidget {
 }
 
 class _ExerciseCardState extends State<ExerciseCard> {
-  bool isFavorite = false;
+  bool _isFavorite = false;
+
+  Future<void> toggleFavorite() async {
+    try {
+      final response = await Dio().post(
+        'http://localhost:3000/favorite',
+        data: {'favourite': !_isFavorite},
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+        });
+      }
+    } catch (e) {
+      print('Failed to toggle favorite exercise: $e');
+    }
+  }
+
+  Future<void> postExercise() async {
+    try {
+      final response = await Dio().post(
+        'http://localhost:3000/favorite', // Replace with your endpoint
+        data: widget.exercise.toJson(),
+      );
+
+      if (response.statusCode == 201) {
+        print('Exercise posted successfully');
+      } else {
+        throw Exception('Failed to post exercise');
+      }
+    } catch (e) {
+      print('Error posting exercise: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Color.fromRGBO(242, 242, 242, 1),
-      margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: ListTile(
-        title: Text(
-          widget.exercise.name,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Montserrat',
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ExerciseDetailsScreen(
+              exerciseId: widget.exercise.id,
+              exerciseName: widget.exercise.name,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        color: Color.fromRGBO(242, 242, 242, 1),
+        margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
+        child: ListTile(
+          title: Text(
+            widget.exercise.name,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          subtitle: Text(
+            "Duration: ${widget.exercise.duration} minutes",
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          trailing: IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite ? Colors.red : null, // Adjusted color
+            ),
+            onPressed: () {
+              if (_isFavorite) {
+                toggleFavorite();
+              } else {
+                postExercise();
+              }
+            },
           ),
         ),
-        subtitle: Text(
-          "Duration: ${widget.exercise.duration} minutes",
-          style: TextStyle(
-            fontSize: 12,
-            fontFamily: 'Montserrat',
-          ),
-        ),
-        trailing: IconButton(
-          icon: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? Colors.pink : Colors.grey,
-          ),
-          onPressed: () {
-            setState(() {
-              isFavorite = !isFavorite;
-            });
-          },
-        ),
-        onTap: () {
-          // Check if the exercise name is "Bench Press"
-          if (widget.exercise.name.toLowerCase() == "bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BenchPressScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "deadlift") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DeadliftScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "počep") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    SquatScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "tek") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RunScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "kolesarjenje") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CyclingScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "jumping jacks") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    JacksScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "overhead press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    OverheadScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "pull-up") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PullupScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "biceps curl") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BicepsScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "cable rope pushdown") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CableRopeScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "bent over barbell row") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    RowingScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "incline barbell bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    InclineBenchScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "dumbbell flat bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DumbellBenchScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "incline dumbbell fly") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FlyScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "dips") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DipsScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "trap bar deadlift") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    TrapDeadliftScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "dumbbell row") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DumbbelRowScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else {
-            // Dynamically create the screen route based on the exercise name
-            String exerciseRoute =
-                '${widget.exercise.name.toLowerCase().replaceAll(' ', '_')}_screen';
-            Navigator.pushNamed(context, exerciseRoute);
-          }
-        },
       ),
     );
   }

@@ -4,16 +4,17 @@ import 'exercise_widget/exercise_details_widget.dart'; // Import ExerciseDetails
 import 'exercise_widget/exercise_details_widget2.dart'; // Import ExerciseDetailsWidget2
 import 'exercise_widget/exercise_details_widget3.dart';
 
-class DumbbelRowScreen extends StatefulWidget {
+class ExerciseDetailsScreen extends StatefulWidget {
   final String exerciseId;
+  final String exerciseName;
 
-  DumbbelRowScreen({required this.exerciseId});
+  ExerciseDetailsScreen({required this.exerciseId, required this.exerciseName});
 
   @override
-  _DumbbelRowScreenState createState() => _DumbbelRowScreenState();
+  _ExerciseDetailsScreenState createState() => _ExerciseDetailsScreenState();
 }
 
-class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
+class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> {
   Map<String, dynamic> exerciseDetails = {};
 
   @override
@@ -24,7 +25,6 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
 
   Future<void> fetchExerciseDetails() async {
     try {
-      // Fetch exercise details using Dio with the exerciseId
       final response =
           await Dio().get('http://localhost:3000/${widget.exerciseId}');
       if (response.statusCode == 200) {
@@ -32,11 +32,9 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
           exerciseDetails = response.data;
         });
       } else {
-        // Handle error
         print('Failed to fetch exercise details');
       }
     } catch (e) {
-      // Handle exception
       print('Error: $e');
     }
   }
@@ -45,11 +43,10 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dumbbell row'),
+        title: Text(widget.exerciseName),
         backgroundColor: Color(0xFFFED467),
       ),
       body: SingleChildScrollView(
-        // Wrap with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(36.0),
           child: Column(
@@ -57,8 +54,8 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
               Column(
                 children: [
                   ExerciseDetailsWidget(
-                    series: exerciseDetails['series'] ?? 3,
-                    repetitions: exerciseDetails['repetitions'] ?? '10-12',
+                    series: exerciseDetails['series'] ?? 0,
+                    repetitions: exerciseDetails['repetitions'] ?? '0',
                     duration: exerciseDetails['duration'] ?? 0,
                   ),
                   SizedBox(height: 20),
@@ -70,32 +67,30 @@ class _DumbbelRowScreenState extends State<DumbbelRowScreen> {
                 difficulty: exerciseDetails['difficulty'] ?? 'Intermediate',
               ),
               SizedBox(height: 20),
-              // Container for the GIF
               Container(
-                padding: EdgeInsets.all(26.0), // Padding around the GIF
+                padding: EdgeInsets.all(26.0),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200], // Gray background color
+                  color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: Container(
                   height: 280,
                   width: 280,
                   decoration: BoxDecoration(
-                    color: Colors.grey[200], // White background color for GIF
+                    color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: Image.asset(
-                    '/exercise_gifs/dumbel_row.gif',
+                    '/exercise_gifs/${widget.exerciseName.toLowerCase().replaceAll(' ', '_')}.gif',
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               SizedBox(height: 20),
-              // Container for the procedure text
               Container(
                 padding: EdgeInsets.all(6.0),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200], // Gray background color
+                  color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: Column(

@@ -14,6 +14,9 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^0.22.0
   animated_text_kit: ^4.2.1
+  shared_preferences: ^2.0.13
+  flutter_secure_storage: ^5.0.2
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -36,21 +39,21 @@ flutter:
     - assets/images/onboarding4.png
     - assets/exercise_gifs/bench_press.gif
     - assets/exercise_gifs/deadlift.gif
-    - assets/exercise_gifs/squat.gif
+    - assets/exercise_gifs/pocep.gif
     - assets/exercise_gifs/tek.gif
-    - assets/exercise_gifs/kolesarnjene.gif
+    - assets/exercise_gifs/kolesarjenje.gif
     - assets/exercise_gifs/jumping_jacks.gif
     - assets/exercise_gifs/overhead_press.gif
     - assets/exercise_gifs/pull-up.gif
     - assets/exercise_gifs/biceps_curl.gif
-    - assets/exercise_gifs/tricep_curl.gif
-    - assets/exercise_gifs/rowing.gif
-    - assets/exercise_gifs/incline_bench.gif
-    - assets/exercise_gifs/buterfly.gif
-    - assets/exercise_gifs/fly.gif
+    - assets/exercise_gifs/cable_rope_pushdown.gif
+    - assets/exercise_gifs/bent_over_barbell_row.gif
+    - assets/exercise_gifs/incline_barbell_bench_press.gif
+    - assets/exercise_gifs/dumbbell_flat_bench_press.gif
+    - assets/exercise_gifs/incline_dumbbell_fly.gif
     - assets/exercise_gifs/dips.gif
-    - assets/exercise_gifs/trap_deadlift.gif
-    - assets/exercise_gifs/dumbel_row.gif
+    - assets/exercise_gifs/trap_bar_deadlift.gif
+    - assets/exercise_gifs/dumbbell_row.gif
 
 
   fonts:

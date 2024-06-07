@@ -73,6 +73,43 @@ app.post('/', async (req, res) => {
   }
 });
 
+app.post('/favorite', async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      duration,
+      calories,
+      type,
+      difficulty,
+      series,
+      repetitions,
+      favourite,
+      userId
+    } = req.body;
+
+    const newExercise = new ExerciseUser({
+      name,
+      description,
+      duration,
+      calories,
+      type,
+      difficulty,
+      series,
+      repetitions,
+      favourite,
+      userId,
+      created: new Date(),
+      updated: new Date()
+    });
+
+    const savedExercise = await newExercise.save();
+    res.status(201).json(savedExercise);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 
 app.put('/:id', async (req, res) => {
   try {
