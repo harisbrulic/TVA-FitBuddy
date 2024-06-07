@@ -20,7 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void _checkSecureStorage() async {
     final token = await _secureStorage.read(key: 'token');
-    final userId = await _secureStorage.read(key: 'userId');
+    final userId =
+        await _secureStorage.read(key: 'userId'); //to je samo za debuganje
     final username = await _secureStorage.read(key: 'username');
 
     print('Token: $token');
@@ -34,11 +35,8 @@ class _LoginPageState extends State<LoginPage> {
         'http://localhost:3002/getId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-
       print('Get ID response: $response');
-
       if (response.statusCode == 200) {
-        // Return the user ID as an integer
         return response.data['id'];
       } else {
         print('Failed to extract user ID: ${response.data}');
@@ -82,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await Dio().post(
-        'http://localhost:3002/login', // Ensure this is the correct URL
+        'http://localhost:3002/login',
         data: {'email': email, 'password': password},
       );
 
@@ -93,17 +91,13 @@ class _LoginPageState extends State<LoginPage> {
         if (token == null) {
           throw Exception('Token is null');
         }
-
-        // Store the token securely
         await _secureStorage.write(key: 'token', value: token);
-
-        // Extract user ID and username
-        final userId = await _extractUserId(token);
+        final userId =
+            await _extractUserId(token); // iz tokena dobim userId in Username
         final username = await _extractUsername(token);
-
-        // Save user ID and username in secure storage
         await _secureStorage.write(
-            key: 'userId', value: userId?.toString() ?? '0');
+            key: 'userId',
+            value: userId?.toString() ?? '0'); // tukaj nato shranim v storage
         await _secureStorage.write(key: 'username', value: username ?? '');
 
         Navigator.push(
@@ -111,20 +105,27 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => OnboardingScreen1()),
         );
       } else {
-        // Handle error
+        // Upravljanje napak
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid login credentials')),
+          SnackBar(content: Text('Nepravilni vnosni podatki')),
         );
       }
     } catch (e) {
-      if (e is DioError && e.response?.statusCode == 401) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unauthorized: Invalid email or password')),
-        );
+      if (e is DioError) {
+        if (e.response?.statusCode == 401) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Nepravilni vnosni podatki')),
+          );
+        } else {
+          print('Error: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Prišlo je do napake')), //upravljanje napak
+          );
+        }
       } else {
         print('Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred')),
+          SnackBar(content: Text('Prišlo je do napake')),
         );
       }
     } finally {
