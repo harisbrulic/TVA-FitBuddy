@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dio/dio.dart';
 import 'register.dart';
 import 'onboarding_1.dart';
 
@@ -9,8 +11,129 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isLoading = false;
+
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  void _checkSecureStorage() async {
+    final token = await _secureStorage.read(key: 'token');
+    final userId =
+        await _secureStorage.read(key: 'userId'); //to je samo za debuganje
+    final username = await _secureStorage.read(key: 'username');
+
+    print('Token: $token');
+    print('User ID: $userId');
+    print('Username: $username');
+  }
+
+  Future<int?> _extractUserId(String token) async {
+    try {
+      final response = await Dio().get(
+        'http://localhost:3002/getId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      print('Get ID response: $response');
+      if (response.statusCode == 200) {
+        return response.data['id'];
+      } else {
+        print('Failed to extract user ID: ${response.data}');
+        return null;
+      }
+    } catch (e) {
+      print('Error extracting user ID: $e');
+      return null;
+    }
+  }
+
+  Future<String?> _extractUsername(String token) async {
+    try {
+      final response = await Dio().get(
+        'http://localhost:3002/getUsername',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      print('Get username response: $response');
+
+      if (response.statusCode == 200) {
+        return response.data['name'];
+      } else {
+        print('Failed to extract username: ${response.data}');
+        return null;
+      }
+    } catch (e) {
+      print('Error extracting username: $e');
+      return null;
+    }
+  }
+
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    print('Logging in with email: $email');
+
+    try {
+      final response = await Dio().post(
+        'http://localhost:3002/login',
+        data: {'email': email, 'password': password},
+      );
+
+      print('Response data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final token = response.data['token'];
+        if (token == null) {
+          throw Exception('Token is null');
+        }
+        await _secureStorage.write(key: 'token', value: token);
+        final userId =
+            await _extractUserId(token); // iz tokena dobim userId in Username
+        final username = await _extractUsername(token);
+        await _secureStorage.write(
+            key: 'userId',
+            value: userId?.toString() ?? '0'); // tukaj nato shranim v storage
+        await _secureStorage.write(key: 'username', value: username ?? '');
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OnboardingScreen1()),
+        );
+      } else {
+        // Upravljanje napak
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nepravilni vnosni podatki')),
+        );
+      }
+    } catch (e) {
+      if (e is DioError) {
+        if (e.response?.statusCode == 401) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Nepravilni vnosni podatki')),
+          );
+        } else {
+          print('Error: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Prišlo je do napake')), //upravljanje napak
+          );
+        }
+      } else {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Prišlo je do napake')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 8.0),
                 TextField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.all(12.0),
@@ -119,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 16),
             Row(
               children: <Widget>[
                 Checkbox(value: false, onChanged: (bool? value) {}),
@@ -139,14 +263,14 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 width: 170,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => OnboardingScreen1()),
-                      );
-                    }
-                  },
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          if (_formKey.currentState!.validate()) {
+                            await _login();
+                            _checkSecureStorage();
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     backgroundColor: Color(0xFFFED467),
@@ -154,15 +278,17 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: Text(
-                    'Prijavi se',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          'Prijavi se',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                 ),
               ),
             ),

@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/exercises_screens/tek_screen.dart';
+import 'exercises_screens/ExerciseDetails.dart';
 import 'home_screen.dart';
-import 'exercises_screens/bench_press_screen.dart';
-import 'exercises_screens/deadlift_screen.dart';
-import 'exercises_screens/počep_screen.dart';
-//import 'exercises_screens/tek_screen.dart';
-import 'exercises_screens/kolesarjenje_screen.dart';
-import 'exercises_screens/jumping_jacks_screen.dart';
-import 'exercises_screens/overhead_press_screen.dart';
-import 'exercises_screens/pull-up_screen.dart';
-import 'exercises_screens/biceps_curl_screen.dart';
-import 'exercises_screens/cable_rope_pushdown_screen.dart';
-import 'exercises_screens/bent_over_barbell_row_screen.dart';
-import 'exercises_screens/incline_barbell_bench_press_screen.dart';
-import 'exercises_screens/dumbbell_flat_bench_press_screen.dart';
-import 'exercises_screens/incline_dumbbell_fly_screen.dart';
-import 'exercises_screens/dips_screen.dart';
-import 'exercises_screens/trap_bar_deadlift_screen.dart';
-import 'exercises_screens/dumbbell_row_screen.dart';
+import 'user_screen.dart';
 import 'package:dio/dio.dart';
-import 'models/exercise.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -28,32 +12,77 @@ class ExerciseScreen extends StatefulWidget {
 
 class _ExerciseScreenState extends State<ExerciseScreen> {
   late Future<List<Exercise>> futureExercises;
-  bool _isVajeSelected = true; // State to toggle between "Vaje" and "Treningi"
+  bool _isVajeSelected = true;
   int _selectedIndex = 1;
+  late String _token = '';
+  late int _userId = 0;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    futureExercises = fetchExercises();
+    _loadToken();
+    _loadUserId();
+    futureExercises = fetchExercises(); // Initialize futureExercises
+  }
+
+  Future<void> _loadToken() async {
+    try {
+      final token = await _secureStorage.read(key: 'token');
+      if (token != null) {
+        setState(() {
+          _token = token;
+          print('Loaded token: $_token'); //debug
+          futureExercises =
+              fetchExercises(); // kličem fetchExercises komaj, ko se naloži token (drugače moram stran osvežiti, da mi jih pravilno pokaže)
+        });
+      } else {
+        print('Failed to load token: Key not found');
+      }
+    } catch (e) {
+      print('Error loading token: $e');
+    }
+  }
+
+  Future<void> _loadUserId() async {
+    try {
+      final userIdString = await _secureStorage.read(key: 'userId');
+      if (userIdString != null) {
+        final userId = int.parse(userIdString);
+        setState(() {
+          _userId = userId;
+          print('Loaded userId: $_userId'); //debug
+        });
+      } else {
+        print('Failed to load userId: Key not found');
+      }
+    } catch (e) {
+      print('Error loading userId: $e');
+    }
   }
 
   Future<List<Exercise>> fetchExercises() async {
     try {
-      // Fetch exercises for "Vaje" or "Treningi" based on the state
+      final dio = Dio();
       final response = _isVajeSelected
-          ? await Dio().get('http://localhost:3000/exercises')
-          : await Dio().get('http://localhost:3000/exercises/favourites');
-
+          ? await dio.get(
+              'http://localhost:3000/',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            )
+          : await dio.get(
+              'http://localhost:3000/favourites',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            );
       if (response.statusCode == 200) {
         List jsonResponse = response.data;
         return jsonResponse
             .map((exercise) => Exercise.fromJson(exercise))
             .toList();
       } else {
-        throw Exception('Failed to load exercises');
+        throw Exception('Napaka pri nalaganju vaj');
       }
     } catch (e) {
-      throw Exception('Failed to load exercises');
+      throw Exception('Napaka pri nalaganju vaj');
     }
   }
 
@@ -73,7 +102,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _isVajeSelected = false; // Show "Treningi" content
+                    _isVajeSelected = false;
                     futureExercises = fetchExercises();
                   });
                 },
@@ -81,8 +110,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   backgroundColor: _isVajeSelected
                       ? MaterialStateProperty.all<Color>(Colors.white)
                       : MaterialStateProperty.all<Color>(Color(0xFFFED467)),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                      Colors.black), // Text color
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                       EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -101,7 +130,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _isVajeSelected = true; // Show "Vaje" content
+                    _isVajeSelected = true;
                     futureExercises = fetchExercises();
                   });
                 },
@@ -109,8 +138,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   backgroundColor: _isVajeSelected
                       ? MaterialStateProperty.all<Color>(Color(0xFFFED467))
                       : MaterialStateProperty.all<Color>(Colors.white),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                      Colors.black), // Text color
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                       EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -136,7 +165,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      return ExerciseCard(exercise: snapshot.data![index]);
+                      return ExerciseCard(
+                        exercise: snapshot.data![index],
+                        userId: _userId,
+                        token: _token,
+                        //tukaj pošiljam spremenljivke iz starševksega objekta na "otroka"
+                      );
                     },
                   );
                 } else if (snapshot.hasError) {
@@ -190,10 +224,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => ExerciseScreen(),
                   ),
                 );
-                // Do nothing as we're already on the Exercises screen
                 break;
               case 2:
                 Navigator.push(
@@ -202,6 +235,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     builder: (context) => HomeScreen(),
                   ),
                 );
+                break;
               case 3:
                 Navigator.push(
                   context,
@@ -209,11 +243,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     builder: (context) => HomeScreen(),
                   ),
                 );
+                break;
               case 4:
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => UserScreen(),
                   ),
                 );
                 break;
@@ -225,216 +260,205 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 }
 
+class Exercise {
+  final String id;
+  final String name;
+  final int duration; // Add duration field
+  final int calories;
+
+  Exercise(
+      {required this.id,
+      required this.name,
+      required this.duration,
+      required this.calories});
+
+  factory Exercise.fromJson(Map<String, dynamic> json) {
+    return Exercise(
+      id: json['_id'],
+      name: json['name'],
+      duration: json['duration'], // Assuming duration is an integer field
+      calories: json['calories'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'duration': duration, 'calories': calories};
+  }
+}
+
 class ExerciseCard extends StatefulWidget {
   final Exercise exercise;
+  final int userId;
+  final String token;
 
-  ExerciseCard({required this.exercise});
+  ExerciseCard(
+      {required this.exercise, required this.userId, required this.token});
 
   @override
   _ExerciseCardState createState() => _ExerciseCardState();
 }
 
 class _ExerciseCardState extends State<ExerciseCard> {
-  bool isFavorite = false;
+  Future<void> postExercise() async {
+    try {
+      // Log the exercise details being posted
+      print('Posting exercise: ${widget.exercise.toJson()}');
+
+      // Log the user ID being sent with the request
+      print('User ID: ${widget.userId}');
+
+      final response = await Dio().post(
+        'http://localhost:3000/favorite',
+        data: {
+          ...widget.exercise.toJson(),
+          'userId': widget.userId,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer ${widget.token}'},
+        ),
+      );
+      print(response);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vaja uspešno dodana med všečkane vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to post exercise: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Neuspeh pri dodajanju vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error posting exercise: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Vaja je že dodana med všečkane vaje'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteExercise() async {
+    try {
+      print('Deleting exercise: ${widget.exercise.name}');
+      print('User ID: ${widget.userId}');
+
+      final response = await Dio().delete(
+        'http://localhost:3000/favorite',
+        data: {
+          'name': widget.exercise.name,
+          'userId': widget.userId,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer ${widget.token}'},
+        ),
+      );
+      print(response);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vaja uspešno odstranjena iz všečkanih vaj'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to delete exercise: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Neuspeh pri odstranjevanju vaje'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error deleting exercise: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Napaka pri odstranjevanju vaje'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Color.fromRGBO(242, 242, 242, 1),
-      margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: ListTile(
-        title: Text(
-          widget.exercise.name,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Montserrat',
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ExerciseDetailsScreen(
+              exerciseId: widget.exercise.id,
+              exerciseName: widget.exercise.name,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        color: Color.fromRGBO(242, 242, 242, 1),
+        margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
+        child: ListTile(
+          title: Text(
+            widget.exercise.name,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Duration: ${widget.exercise.duration} minutes",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              Text(
+                "Calories: ${widget.exercise.calories} kcal",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  postExercise();
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.remove,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  deleteExercise();
+                },
+              ),
+            ],
           ),
         ),
-        subtitle: Text(
-          "Duration: ${widget.exercise.duration} minutes",
-          style: TextStyle(
-            fontSize: 12,
-            fontFamily: 'Montserrat',
-          ),
-        ),
-        trailing: IconButton(
-          icon: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? Colors.pink : Colors.grey,
-          ),
-          onPressed: () {
-            setState(() {
-              isFavorite = !isFavorite;
-            });
-          },
-        ),
-        onTap: () {
-          // Check if the exercise name is "Bench Press"
-          if (widget.exercise.name.toLowerCase() == "bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BenchPressScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "deadlift") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DeadliftScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "počep") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    SquatScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "tek") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RunScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "kolesarjenje") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CyclingScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "jumping jacks") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    JacksScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "overhead press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    OverheadScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "pull-up") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PullupScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "biceps curl") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BicepsScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "cable rope pushdown") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CableRopeScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "bent over barbell row") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    RowingScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "incline barbell bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    InclineBenchScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "dumbbell flat bench press") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DumbellBenchScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "incline dumbbell fly") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FlyScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "dips") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DipsScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() ==
-              "trap bar deadlift") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    TrapDeadliftScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else if (widget.exercise.name.toLowerCase() == "dumbbell row") {
-            // Navigate to BenchPressScreen with exerciseId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DumbbelRowScreen(exerciseId: widget.exercise.id),
-              ),
-            );
-          } else {
-            // Dynamically create the screen route based on the exercise name
-            String exerciseRoute =
-                '${widget.exercise.name.toLowerCase().replaceAll(' ', '_')}_screen';
-            Navigator.pushNamed(context, exerciseRoute);
-          }
-        },
       ),
     );
   }

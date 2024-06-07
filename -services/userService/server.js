@@ -5,6 +5,9 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const port = 3002;
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const secretKey = process.env.SECRET_KEY;
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -16,6 +19,62 @@ db.once('open', () => {
 
 app.use(express.json());
 app.use(cors());
+
+function generateToken(user) {
+  return jwt.sign({ userId: user._id, name: user.name }, secretKey, { expiresIn: '1h' });
+}
+
+app.post('/login', async (req, res) => {
+  try {
+      const { email, password } = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(401).send({ message: 'Invalid email' });
+      }
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+          return res.status(401).send({ message: 'Invalid password' });
+      }
+      const token = generateToken(user);
+      console.log(token);
+      res.send({ token });
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).send({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/getId', (req, res) => {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+      return res.status(401).json({ message: 'Token not provided' });
+  }
+
+  try {
+      const decodedToken = jwt.decode(token);
+      const id = decodedToken.userId;
+      res.json({ id });
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/getUsername', (req, res) => {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+      return res.status(401).json({ message: 'Token not provided' });
+  }
+
+  try {
+      const decodedToken = jwt.decode(token);
+      const name = decodedToken.name;
+      res.json({ name });
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 
 app.get('/', async (req, res) => {
