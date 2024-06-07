@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'exercise_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'bottomnavbar.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,22 +10,56 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  Future<void> _showDialog(BuildContext context, String url) async {
+    final Uri uri = Uri.parse(url);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Ali želite odpreti članek?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Ne'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Da'),
+              onPressed: () async {
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  await launchUrl(uri);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFFED467),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+    return BottomNavbar(
+      selectedIndex: _selectedIndex,
+      body: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(110.0),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Color(0xFFFED467),
+            flexibleSpace: Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Zdravo Nina',
+                    'Zdravo Nina!',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 28,
@@ -52,94 +87,59 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Icon(Icons.person),
-            ),
-          ],
+          ),
         ),
-      ),
-      body: Container(), // Empty container as body
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  height: 150.0,
+                  width: 360.0,
+                  child: InkWell(
+                    onTap: () => _showDialog(context, 'https://www.tek.si'),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/tekdanes.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  height: 150.0,
+                  width: 360.0,
+                  child: InkWell(
+                    onTap: () => _showDialog(context, 'https://www.okusno.je'),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/kajzakosilo.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  height: 150.0,
+                  width: 360.0,
+                  child: InkWell(
+                    onTap: () => _showDialog(context, 'https://www.jogaline.si/blog/kaj-je-joga'),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/jogazazacetnike.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons
-                .directions_run), // Use the DirectionsRun icon for exercises
-            label: 'Exercises',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.input),
-            label: 'Input',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analytics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor:
-            Color(0xFFFED467), // Change selected item color to yellow
-        unselectedItemColor: Colors.grey, // Set unselected item color to gray
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-            switch (index) {
-              case 0:
-                // Navigate to home_screen.dart
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace HomeScreen() with your home screen widget
-                );
-                break;
-              case 1:
-                // Navigate to exercises_screen.dart
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          ExerciseScreen()), // Replace ExerciseScreen() with your exercise screen widget
-                );
-                break;
-              case 2:
-                // Navigate to input_screen.dart
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace InputScreen() with your input screen widget
-                );
-                break;
-              case 3:
-                // Navigate to analytics_screen.dart
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace AnalyticsScreen() with your analytics screen widget
-                );
-                break;
-              case 4:
-                // Navigate to profile_screen.dart
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()), // Replace ProfileScreen() with your profile screen widget
-                );
-                break;
-            }
-          });
-        },
+        ),
       ),
     );
   }

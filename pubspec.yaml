@@ -14,11 +14,13 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^0.22.0
   animated_text_kit: ^4.2.1
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  url_launcher: ^6.0.9
 
 flutter:
   uses-material-design: true
@@ -30,6 +32,12 @@ flutter:
     - assets/icons/home.png
     - assets/icons/name.png
     - assets/icons/image.png
+    - assets/icons/vnos.png
+    - assets/images/tekdanes.png
+    - assets/images/kajzakosilo.png
+    - assets/images/jogazazacetnike.png
+    - assets/icons/analyticsgray.png
+    - assets/icons/exercisesgray.png
     - assets/images/onboarding1.png
     - assets/images/onboarding2.png
     - assets/images/onboarding3.png
