@@ -14,25 +14,70 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^0.22.0
   animated_text_kit: ^4.2.1
+  table_calendar: ^3.0.0
+  intl: ^0.17.0
+  charts_flutter: ^0.12.0
   shared_preferences: ^2.0.13
   flutter_secure_storage: ^5.0.2
   jwt_decoder: ^2.0.1
+  http: ^1.2.1
+  flutter_launcher_icons: ^0.11.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  url_launcher: ^6.0.9
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/icons/image.png
+  android: true
+  ios: true
+  web: true
+  windows: true
+  macos: true
+  linux: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/image.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icons/image.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+  windows:
+    generate: true
+    image_path: "assets/icons/image.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/image.png"
 
 flutter:
   uses-material-design: true
 
   assets:
+    - assets/icons/info.png
+    - assets/icons/xp.png
+    - assets/icons/muscles.png
     - assets/icons/email.png
     - assets/icons/lock.png
     - assets/icons/potisk.png
     - assets/icons/home.png
     - assets/icons/name.png
     - assets/icons/image.png
+    - assets/icons/vnos.png
+    - assets/icons/fire.png
+    - assets/images/tekdanes.png
+    - assets/images/kajzakosilo.png
+    - assets/icons/waterglass.png
+    - assets/images/jogazazacetnike.png
+    - assets/icons/analyticsgray.png
+    - assets/icons/exercisesgray.png
     - assets/images/onboarding1.png
     - assets/images/onboarding2.png
     - assets/images/onboarding3.png
@@ -56,7 +101,6 @@ flutter:
     - assets/exercise_gifs/dips.gif
     - assets/exercise_gifs/trap_bar_deadlift.gif
     - assets/exercise_gifs/dumbbell_row.gif
-
 
   fonts:
     - family: Montserrat

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'register.dart';
-import 'onboarding_1.dart';
+import 'onboarding/onboarding_1.dart';
+import 'home_screen.dart';
+import 'splash_screen.dart';
+import 'package:dio/dio.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = false;
+  bool _rememberMe = false;
 
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
@@ -32,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<int?> _extractUserId(String token) async {
     try {
       final response = await Dio().get(
-        'http://localhost:3002/getId',
+        'http://10.0.2.2:3002/getId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
       print('Get ID response: $response');
@@ -51,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<String?> _extractUsername(String token) async {
     try {
       final response = await Dio().get(
-        'http://localhost:3002/getUsername',
+        'http://10.0.2.2:3002/getUsername',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -80,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await Dio().post(
-        'http://localhost:3002/login',
+        'http://10.0.2.2:3002/login',
         data: {'email': email, 'password': password},
       );
 
@@ -100,10 +104,25 @@ class _LoginPageState extends State<LoginPage> {
             value: userId?.toString() ?? '0'); // tukaj nato shranim v storage
         await _secureStorage.write(key: 'username', value: username ?? '');
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OnboardingScreen1()),
-        );
+        if (_rememberMe) {
+          await _secureStorage.write(key: 'rememberMe', value: 'true');
+        } else {
+          await _secureStorage.write(key: 'rememberMe', value: 'false');
+        }
+
+        final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
+
+        if (isFirstLogin== 'true') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OnboardingScreen1()),
+          );
+        }
       } else {
         // Upravljanje napak
         ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              color: const Color(0xFFFBFE),
+              color: Color.fromARGB(0, 255, 255, 255),
               height: 120.0,
               width: 120.0,
               alignment: Alignment.center,
@@ -238,6 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Color(0xffb3b2b4)),
                     ),
                   ),
                 ),
@@ -246,7 +266,14 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 16),
             Row(
               children: <Widget>[
-                Checkbox(value: false, onChanged: (bool? value) {}),
+                Checkbox(
+                  value: _rememberMe,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _rememberMe = value ?? false;
+                    });
+                  },
+                ),
                 Text(
                   'Zapomni si me',
                   style: TextStyle(

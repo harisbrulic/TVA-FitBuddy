@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'onboarding_2.dart';
+import '../home_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class OnboardingScreen1 extends StatefulWidget {
   @override
@@ -7,6 +9,39 @@ class OnboardingScreen1 extends StatefulWidget {
 }
 
 class _OnboardingScreen1State extends State<OnboardingScreen1> {
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  void _showSkipDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Preskoči'),
+          content: Text('Ali ste prepričani, da želite preskočiti uvod?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Ne'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _secureStorage.write(key: 'isFirstLogin', value: 'true');
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
+              child: Text('Da'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,9 +67,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
-                        onTap: () {
-                          // dodaj home screen
-                        },
+                        onTap: _showSkipDialog,
                         child: Text(
                           'Preskoči',
                           style: TextStyle(
