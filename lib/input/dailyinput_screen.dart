@@ -30,11 +30,17 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
     return await _secureStorage.read(key: 'token');
   }
 
+  Future<int?> _getUserId() async {
+    final userId = await _secureStorage.read(key: 'userId');
+    return userId != null ? int.parse(userId) : null;
+  }
+
   Future<void> _loadDailyInputs() async {
     final token = await _getToken();
-    if (token == null) {
+    final userId = await _getUserId();
+    if (token == null || userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Token is null!')),
+        SnackBar(content: Text('Token or User ID is null!')),
       );
       return;
     }
@@ -42,6 +48,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
     try {
       final response = await _dio.get(
         'http://10.0.2.2:3003/',
+        queryParameters: {'userId': userId.toString()},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
