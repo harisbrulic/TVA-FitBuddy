@@ -5,6 +5,7 @@ import 'register.dart';
 import 'onboarding/onboarding_1.dart';
 import 'home_screen.dart';
 import 'splash_screen.dart';
+import 'package:dio/dio.dart';
 
 class LoginPage extends StatefulWidget {
   @override

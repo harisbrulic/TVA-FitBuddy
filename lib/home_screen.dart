@@ -105,18 +105,21 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                   height: 150.0,
                   width: 360.0,
-                  child: InkWell(
-                    onTap: () => _showDialog(context, 'https://www.tek.si'),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/tekdanes.png',
-                        fit: BoxFit.cover,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0), 
+                    child: InkWell(
+                      onTap: () => _showDialog(context, 'https://www.tek.si'),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/tekdanes.png',
+                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
+                ),
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
