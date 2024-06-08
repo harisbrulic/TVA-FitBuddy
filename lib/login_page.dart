@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              color: const Color(0xFFFBFE),
+              color: Color.fromARGB(0, 255, 255, 255),
               height: 120.0,
               width: 120.0,
               alignment: Alignment.center,
@@ -238,8 +238,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Color(0xffb3b2b4)
                     ),
                   ),
+                ),
                 ),
               ],
             ),
