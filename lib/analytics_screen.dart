@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'header.dart';
 import 'bottomnavbar.dart';
 
@@ -11,7 +10,6 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  final _secureStorage = FlutterSecureStorage();
   late Future<List<OrdinalSales>> _chartData;
   late Future<Map<String, dynamic>> _statsData;
 
@@ -22,19 +20,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     _statsData = _fetchStatsData();
   }
 
-  Future<String?> _getToken() async {
-    return await _secureStorage.read(key: 'token');
-  }
-
   Future<List<OrdinalSales>> _fetchChartData() async {
     final dio = Dio();
-    final token = await _getToken();
-    final response = await dio.get(
-      'http://localhost:3003/',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-    );
+    final response = await dio.get('http://10.0.2.2:3003/');
     if (response.statusCode == 200) {
       final data = response.data as List;
       final now = DateTime.now();
@@ -66,13 +54,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Future<Map<String, dynamic>> _fetchStatsData() async {
     final dio = Dio();
-    final token = await _getToken();
-    final response = await dio.get(
-      'http://localhost:3003/',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-    );
+    final response = await dio.get('http://10.0.2.2:3003/');
     if (response.statusCode == 200) {
       final data = response.data as List;
       final now = DateTime.now();
