@@ -59,8 +59,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
       if (response.statusCode == 200) {
         List dailyInputs = response.data;
         Map<DateTime, dynamic> inputsMap = {
-          for (var input in dailyInputs)
-            DateTime.parse(input['date']): input
+          for (var input in dailyInputs) DateTime.parse(input['date']): input
         };
         setState(() {
           _dailyInputs = dailyInputs;
