@@ -4,8 +4,6 @@ import 'package:dio/dio.dart';
 import 'register.dart';
 import 'onboarding/onboarding_1.dart';
 import 'home_screen.dart';
-import 'splash_screen.dart';
-import 'package:dio/dio.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -36,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<int?> _extractUserId(String token) async {
     try {
       final response = await Dio().get(
-        'http://10.0.2.2:3002/getId',
+        'http://localhost:3002/getId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
       print('Get ID response: $response');
@@ -55,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<String?> _extractUsername(String token) async {
     try {
       final response = await Dio().get(
-        'http://10.0.2.2:3002/getUsername',
+        'http://localhost:3002/getUsername',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -84,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await Dio().post(
-        'http://10.0.2.2:3002/login',
+        'http://localhost:3002/login',
         data: {'email': email, 'password': password},
       );
 
@@ -110,9 +108,10 @@ class _LoginPageState extends State<LoginPage> {
           await _secureStorage.write(key: 'rememberMe', value: 'false');
         }
 
-        final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
+        final isFirstLogin =
+            await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
 
-        if (isFirstLogin== 'true') {
+        if (isFirstLogin == 'true') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),
