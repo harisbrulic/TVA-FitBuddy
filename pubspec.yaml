@@ -82,6 +82,8 @@ flutter:
     - assets/images/onboarding2.png
     - assets/images/onboarding3.png
     - assets/images/onboarding4.png
+    - assets/images/avatar.png
+    - assets/images/avatar_2.png
     - assets/exercise_gifs/bench_press.gif
     - assets/exercise_gifs/deadlift.gif
     - assets/exercise_gifs/pocep.gif

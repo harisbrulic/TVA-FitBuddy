@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const trainingSchema = new mongoose.Schema({
   name: String,
   duration: Number,
@@ -10,5 +11,7 @@ const trainingSchema = new mongoose.Schema({
   created: Date,
   updated: Date
 });
+
 const Training = mongoose.model('Training', trainingSchema, 'trainings');
+
 module.exports = Training;

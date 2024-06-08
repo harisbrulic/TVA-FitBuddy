@@ -5,6 +5,8 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const port = 3001;
+const jwt = require('jsonwebtoken');
+const secretKey = process.env.SECRET_KEY;
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -18,29 +20,51 @@ app.use(express.json());
 app.use(cors());
 
 
-app.get('/', async (req, res) => {
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Token not provided' });
+  }
+
+  jwt.verify(token, secretKey, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// GET
+// Pridobitev vseh treningov
+app.get('/', authenticateToken, async (req, res) => {
   try {
-    const trainings = await Training.find( /*userId == req.body.userId*/);
+    const trainings = await Training.find({ userId: req.user.userId });
     res.json(trainings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-app.get('/favourites', async (req, res) => {
+// Pridobitev samo všečkanih treningov
+app.get('/favorites/:id', async (req, res) => {
   try {
-    const trainings = await Training.find({ favourite: true && userId === req.body.userId });
+    const trainings = await Training.find({ favourite: true, userId: req.params.id });
     res.json(trainings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-app.get('/:id', async (req, res) => {
+// Pridobitev enega treninga
+app.get('/:id', authenticateToken, async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) {
       return res.status(404).send({ message: 'Training not found' });
+    }
+    if (training.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
     res.send(training);
   } catch (error) {
@@ -49,13 +73,15 @@ app.get('/:id', async (req, res) => {
 });
 
 
-app.post('/', async (req, res) => {
+// POST
+// Vstavljanje treninga
+app.post('/', authenticateToken, async (req, res) => {
   const training = new Training({
     name: req.body.name,
     duration: req.body.duration,
     calories: req.body.calories,
     difficulty: req.body.difficulty,
-    userId: req.body.userId,
+    userId: req.user.userId,
     exerciseIds: req.body.exerciseIds,
     favourite: false,
     created: new Date(),
@@ -71,11 +97,16 @@ app.post('/', async (req, res) => {
 });
 
 
-app.put('/:id', async (req, res) => {
+// PUT
+// Posodabljanje treninga
+app.put('/:id', authenticateToken, async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) {
       return res.status(404).json({ message: 'Training not found' });
+    }
+    if (training.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     training.name = req.body.name;
@@ -95,12 +126,17 @@ app.put('/:id', async (req, res) => {
   }
 });
 
-app.put('/favourites/:id', async (req, res) => {
+// Všečkanje treninga
+app.put('/favourites/:id', authenticateToken, async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) {
       return res.status(404).json({ message: 'Training not found' });
     }
+    if (training.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
     training.favourite = !training.favourite;
     const updatedTraining = await training.save();
     res.json(updatedTraining);
@@ -110,11 +146,16 @@ app.put('/favourites/:id', async (req, res) => {
 });
 
 
-app.delete('/:id', async (req, res) => {
+// DELETE
+// Brisanje treninga
+app.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) {
       return res.status(404).json({ message: 'Training not found' });
+    }
+    if (training.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     await training.remove();

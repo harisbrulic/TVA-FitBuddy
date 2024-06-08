@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'home_screen.dart';
+import 'exercise_screen.dart';
+import './user_screens/userWidgets/points_widget.dart';
 
 class UserScreen extends StatefulWidget {
   @override
@@ -13,13 +16,14 @@ class _UserScreenState extends State<UserScreen> {
   late int _userId = 0;
   late String _username = '';
   late Map<String, dynamic> userData = {};
+  int _selectedIndex = 4;
 
   @override
   void initState() {
     super.initState();
     _loadToken();
-    _loadUserId();
     _loadUsername();
+    _loadUserId();
   }
 
   Future<void> _loadToken() async {
@@ -47,6 +51,9 @@ class _UserScreenState extends State<UserScreen> {
         setState(() {
           _userId = userId;
           print('Loaded userId: $_userId'); //debug
+          fetchUserData();
+          fetchFavoriteExercises();
+          fetchFavoriteTrainings();
         });
       } else {
         print('Failed to load userId: Key not found');
@@ -79,7 +86,7 @@ class _UserScreenState extends State<UserScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3002/userData', // Adjust the endpoint to your API route
+        'http://localhost:3002/$_userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -96,14 +103,62 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
+  Future<void> fetchFavoriteExercises() async {
+    if (_token == null) {
+      print('Token is not loaded yet');
+      return;
+    }
+    try {
+      final response = await Dio().get(
+        'http://localhost:3000/favorites/$_userId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $_token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          userData['favoriteExercises'] = response.data;
+        });
+      } else {
+        print('Failed to fetch favorite exercises');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> fetchFavoriteTrainings() async {
+    if (_token == null) {
+      print('Token is not loaded yet');
+      return;
+    }
+    try {
+      final response = await Dio().get(
+        'http://localhost:3001/favorites/$_userId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $_token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          userData['favoriteTrainings'] = response.data;
+        });
+      } else {
+        print('Failed to fetch favorite exercises');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize:
-            Size.fromHeight(500), // Set the height of the orange header
+        preferredSize: Size.fromHeight(400),
         child: AppBar(
-          automaticallyImplyLeading: false, // Remove the back arrow
+          //to je del z ikono avatarja, številom točk in ikonama za informacije in urejanje
+          automaticallyImplyLeading: false,
           backgroundColor: Color(0xFFFED467),
           flexibleSpace: Container(
             padding: EdgeInsets.all(20),
@@ -112,26 +167,42 @@ class _UserScreenState extends State<UserScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 80, // Increase the radius for a bigger avatar
-                  backgroundImage: NetworkImage(
-                      'https://example.com/profile-image.jpg'), // Replace with actual URL
+                  radius: 80,
+                  backgroundImage: AssetImage('images/avatar_2.png'),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  _username.isNotEmpty ? _username : 'User Name',
-                  style: TextStyle(
-                    fontSize: 24, // Increase font size
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _username.isNotEmpty ? _username : 'User Name',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 12, 12, 12),
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        // Add your edit functionality here
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.info),
+                      onPressed: () {
+                        // Add your info functionality here
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Točke',
-                  style: TextStyle(
-                    fontSize: 16, // Adjust font size as needed
-                    color: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PointsWidget(points: userData['points'] ?? 0),
+                  ],
                 ),
               ],
             ),
@@ -140,11 +211,196 @@ class _UserScreenState extends State<UserScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start, // leva poravnava
           children: [
-            // Other widgets can go here...
+            Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, //leva poravnava
+                children: [
+                  Text(
+                    'Moje vaje', //del za vaje
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  if (userData.containsKey('favoriteExercises'))
+                    ...List<Widget>.generate(
+                      userData['favoriteExercises'].length,
+                      (index) {
+                        var exercise = userData['favoriteExercises'][index];
+                        return Card(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          child: ListTile(
+                            title: Text(
+                              exercise['name'],
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start, // levo poravnano
+                              children: [
+                                Text(
+                                  "Duration: ${exercise['duration']} minutes",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                Text(
+                                  "Calories: ${exercise['calories']} kcal",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Moji treningi', //del za treninge
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  if (userData.containsKey('favoriteTrainings'))
+                    ...List<Widget>.generate(
+                      userData['favoriteTrainings'].length,
+                      (index) {
+                        var training = userData['favoriteTrainings'][index];
+                        return Card(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          child: ListTile(
+                            title: Text(
+                              training['name'],
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .start, // vse je levo poravnano
+                              children: [
+                                Text(
+                                  "Duration: ${training['duration']} minutes",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                Text(
+                                  "Calories: ${training['calories']} kcal",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                Text(
+                                  "Difficulty: ${training['difficulty']}",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_run),
+            label: 'Exercises',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.input),
+            label: 'Input',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Analytics',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Color(0xFFFED467),
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+            switch (index) {
+              case 0:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+                break;
+              case 1:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ExerciseScreen(),
+                  ),
+                );
+                break;
+              case 2:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+                break;
+              case 3:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+                break;
+              case 4:
+                break;
+            }
+          });
+        },
       ),
     );
   }
