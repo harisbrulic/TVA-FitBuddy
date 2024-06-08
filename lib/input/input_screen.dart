@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class InputScreen extends StatefulWidget {
   final DateTime selectedDate;
+  final Map<String, dynamic>? existingEntry;
 
-  InputScreen({required this.selectedDate});
+  InputScreen({required this.selectedDate, this.existingEntry});
 
   @override
   _InputScreenState createState() => _InputScreenState();
@@ -15,6 +18,93 @@ class _InputScreenState extends State<InputScreen> {
   final TextEditingController _waterController = TextEditingController();
   final TextEditingController _caloriesController = TextEditingController();
   bool _isTrainingCompleted = false;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final Dio _dio = Dio();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingEntry != null) {
+      _waterController.text = widget.existingEntry!['water'].toString();
+      _caloriesController.text = widget.existingEntry!['calories'].toString();
+      _isTrainingCompleted = widget.existingEntry!['trainingFinished'] ?? false;
+    }
+  }
+
+  Future<String?> _getToken() async {
+    return await _secureStorage.read(key: 'token');
+  }
+
+  Future<int?> _getUserId() async {
+    final userId = await _secureStorage.read(key: 'userId');
+    return userId != null ? int.parse(userId) : null;
+  }
+
+  Future<void> _saveDailyInput() async {
+    final token = await _getToken();
+    final userId = await _getUserId();
+    if (token == null || userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Token is null!')),
+      );
+      return;
+    }
+
+    final data = {
+      'water': _waterController.text,
+      'calories': _caloriesController.text,
+      'trainingFinished': _isTrainingCompleted,
+      'date': widget.selectedDate.toIso8601String(),
+      'userId': userId,
+    };
+
+    try {
+      if (widget.existingEntry != null) {
+        final response = await _dio.put(
+          'http://10.0.2.2:3003/${widget.existingEntry!['_id']}',
+          options: Options(
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          ),
+          data: data,
+        );
+
+        if (response.statusCode == 200) {
+          Navigator.pop(context, true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Prišlo je do napake.')),
+          );
+        }
+      } else {
+        // Create new entry
+        final response = await _dio.post(
+          'http://10.0.2.2:3003/',
+          options: Options(
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          ),
+          data: data,
+        );
+
+        if (response.statusCode == 201) {
+          Navigator.pop(context, true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Prišlo je do napake.')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Prišlo je do napake.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +131,7 @@ class _InputScreenState extends State<InputScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // todo: shrani podatke
-                      Navigator.pop(context);
+                      _saveDailyInput();
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -52,8 +141,8 @@ class _InputScreenState extends State<InputScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child:  Text(
-                    'Dodaj',
+                  child: Text(
+                    widget.existingEntry != null ? 'Uredi' : 'Dodaj',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w400,
@@ -66,7 +155,7 @@ class _InputScreenState extends State<InputScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -87,7 +176,7 @@ class _InputScreenState extends State<InputScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Voda (v litrih)',
+                    'Voda (v kozarcih)',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 16,
@@ -103,7 +192,7 @@ class _InputScreenState extends State<InputScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vnesite količino vode v litrih!';
+                        return 'Vnesite količino vode!';
                       }
                       return null;
                     },
