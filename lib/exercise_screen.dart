@@ -66,11 +66,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       final dio = Dio();
       final response = _isVajeSelected
           ? await dio.get(
-              'http://localhost:3000/',
+              'http://10.0.2.2:3000/',
               options: Options(headers: {'Authorization': 'Bearer $_token'}),
             )
           : await dio.get(
-              'http://localhost:3000/favourites',
+              'http://10.0.2.2:3000/favourites',
               options: Options(headers: {'Authorization': 'Bearer $_token'}),
             );
       if (response.statusCode == 200) {
@@ -308,7 +308,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
       print('User ID: ${widget.userId}');
 
       final response = await Dio().post(
-        'http://localhost:3000/favorite',
+        'http://10.0.2.2:3000/favorite',
         data: {
           ...widget.exercise.toJson(),
           'userId': widget.userId,
@@ -352,7 +352,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
       print('User ID: ${widget.userId}');
 
       final response = await Dio().delete(
-        'http://localhost:3000/favorite',
+        'http://10.0.2.2:3000/favorite',
         data: {
           'name': widget.exercise.name,
           'userId': widget.userId,

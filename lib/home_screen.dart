@@ -13,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late String _username = '';
   final FlutterSecureStorage _secureStorage =
-      FlutterSecureStorage(); // začenem secure storage
+      FlutterSecureStorage();
 
   @override
   void initState() {
