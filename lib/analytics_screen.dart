@@ -174,7 +174,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           barRendererDecorator: charts.BarLabelDecorator<String>(),
                           defaultRenderer: charts.BarRendererConfig(
                             cornerStrategy: const charts.ConstCornerStrategy(30),
-                            maxBarWidthPx: 20, // Adjusts the bar width
+                            maxBarWidthPx: 20,
                           ),
                         ),
                       );
