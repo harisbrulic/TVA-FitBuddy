@@ -20,25 +20,20 @@ db.once('open', () => {
 app.use(express.json());
 app.use(cors());
 
-
 function authenticateToken(req, res, next) {
-  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ message: 'Token not provided' });
-  }
-
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token == null) return res.sendStatus(401);
   jwt.verify(token, secretKey, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
-    req.user = user;
-    next();
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      console.log(req.user);
+      next();
   });
-}
+};
 
-// GET
-// Pridobitev vseh vaj
-app.get('/', authenticateToken, async (req, res) => {
+
+app.get('/',authenticateToken, async (req, res) => { //pridobitev vseh vaj
   try {
     const exercises = await Exercise.find( /*userId === req.body.userId*/);
     res.json(exercises);
@@ -47,18 +42,16 @@ app.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Pridobitev samo všečkanih vaj
-app.get('/favourites', authenticateToken, async (req, res) => {
+app.get('/favorites/:id', authenticateToken, async (req, res) => {//dobim vse všečkane vaje uporabnika
   try {
-    const exercises = await Exercise.find({ favourite: true && userId === req.body.userId });
-    res.json(exercises);
+      const exercises = await ExerciseUser.find( {userId: req.params.id});
+      res.send(exercises);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
-// Pridobitev posamezne vaje
-app.get('/:id', authenticateToken, async (req, res) => {
+app.get('/:id', async (req, res) => { //pridobitev posamezne vaje
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -71,9 +64,7 @@ app.get('/:id', authenticateToken, async (req, res) => {
 });
 
 
-// POST
-// Vstavljanje vaje (admin)
-app.post('/', authenticateToken, async (req, res) => {
+app.post('/', async (req, res) => { //vstavljanje vaje (admin)
   const exercise = new Exercise({
     name: req.body.name,
     description: req.body.description,
@@ -97,8 +88,30 @@ app.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Všečkanje vaje
-app.post('/favorite', authenticateToken, async (req, res) => {
+/*app.post('/favorite', async (req, res) => {
+  try {
+    const {
+      name,
+      duration,
+      calories,
+      userId
+    } = req.body;
+
+    const newExercise = new ExerciseUser({
+      name,
+      duration,
+      calories,
+      userId,
+    });
+
+    const savedExercise = await newExercise.save();
+    res.status(201).json(savedExercise);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});*/
+
+app.post('/favorite', authenticateToken, async (req, res) => {//všečkanje vaje
   try {
     const { name, duration, calories, userId } = req.body;
     const existingExercise = await ExerciseUser.findOne({ name, userId });
@@ -113,10 +126,22 @@ app.post('/favorite', authenticateToken, async (req, res) => {
   }
 });
 
+app.delete('/favorite', authenticateToken, async (req, res) => {//odvšečkanje vaje
+  try {
+    const { name, userId  } = req.body;
+    const exercise = await ExerciseUser.findOneAndDelete({ name, userId  });
+    if (!exercise) {
+      return res.status(404).send({ message: 'Exercise not found' });
+    }
+    res.send({ message: 'Exercise successfully deleted', exercise });
+  } catch (error) {
+    res.status(500).send({ message: 'Error deleting exercise', error });
+  }
+});
 
-// PUT
-// Posodabljanje vaje (admin)
-app.put('/:id', authenticateToken, async (req, res) => {
+
+
+app.put('/:id', async (req, res) => {//posodabljanje vaje (admin)
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -140,10 +165,22 @@ app.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+/*app.put('/favourites/:id', async (req, res) => {
+  try {
+    const exercise = await Exercise.findById(req.params.id);
+    if (!exercise) {
+      return res.status(404).json({ message: 'Exercise not found' });
+    }
+    exercise.favourite = !exercise.favourite;
+    const updatedExercise = await exercise.save();
+    res.json(updatedExercise);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});*/
 
-// DELETE
-// Brisanje vaje
-app.delete('/:id', authenticateToken, async (req, res) => {
+
+app.delete('/:id', async (req, res) => {//brisanje vaje
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -154,20 +191,6 @@ app.delete('/:id', authenticateToken, async (req, res) => {
     res.json({ message: 'Exercise deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-});
-
-// Odvšečkanje vaje
-app.delete('/favorite', authenticateToken, async (req, res) => {
-  try {
-    const { name, userId } = req.body;
-    const exercise = await ExerciseUser.findOneAndDelete({ name, userId });
-    if (!exercise) {
-      return res.status(404).send({ message: 'Exercise not found' });
-    }
-    res.send({ message: 'Exercise successfully deleted', exercise });
-  } catch (error) {
-    res.status(500).send({ message: 'Error deleting exercise', error });
   }
 });
 
