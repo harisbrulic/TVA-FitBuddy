@@ -20,29 +20,64 @@ db.once('open', () => {
 app.use(express.json());
 app.use(cors());
 
-
 function generateToken(user) {
   return jwt.sign({ userId: user._id, name: user.name }, secretKey, { expiresIn: '1h' });
 }
 
-function authenticateToken(req, res, next) {
+app.post('/login', async (req, res) => {
+  try {
+      const { email, password } = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(401).send({ message: 'Invalid email' });
+      }
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+          return res.status(401).send({ message: 'Invalid password' });
+      }
+      const token = generateToken(user);
+      console.log(token);
+      res.send({ token });
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).send({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/getId', (req, res) => {
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: 'Token not provided' });
+      return res.status(401).json({ message: 'Token not provided' });
   }
 
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-}
+  try {
+      const decodedToken = jwt.decode(token);
+      const id = decodedToken.userId;
+      res.json({ id });
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
-// GET
-// Pridobitev vseh uporabnikov
-app.get('/', authenticateToken, async (req, res) => {
+app.get('/getUsername', (req, res) => {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+      return res.status(401).json({ message: 'Token not provided' });
+  }
+
+  try {
+      const decodedToken = jwt.decode(token);
+      const name = decodedToken.name;
+      res.json({ name });
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+app.get('/', async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -51,8 +86,7 @@ app.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Pridobitev posameznega uporabnika
-app.get('/:id', authenticateToken, async (req, res) => {
+app.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -64,20 +98,8 @@ app.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Pridobitev uporabnikovega ID-ja
-app.get('/getId', authenticateToken, (req, res) => {
-  res.json({ id: req.user.userId });
-});
 
-// Pridobitev uporabnikovega imena
-app.get('/getUsername', authenticateToken, (req, res) => {
-  res.json({ name: req.user.name });
-});
-
-
-// POST
-// Vstavljanje uporabnika
-app.post('/', authenticateToken, async (req, res) => {
+app.post('/', async (req, res) => {
   const user = new User({
     name: req.body.name,
     email: req.body.email,
@@ -94,30 +116,8 @@ app.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Prijava uporabnika
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).send({ message: 'Invalid email' });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).send({ message: 'Invalid password' });
-    }
-    const token = generateToken(user);
-    res.send({ token });
-  } catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-});
 
-
-// PUT
-// Posodabljanje uporabnika
-app.put('/:id', authenticateToken, async (req, res) => {
+app.put('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -140,8 +140,7 @@ app.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Posodabljanje točk uporabnika
-app.put('/points/:id', authenticateToken, async (req, res) => {
+app.put('/points/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -156,9 +155,7 @@ app.put('/points/:id', authenticateToken, async (req, res) => {
 });
 
 
-// DELETE
-// Brisanje uporabnika
-app.delete('/:id', authenticateToken, async (req, res) => {
+app.delete('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {

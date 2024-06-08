@@ -299,6 +299,8 @@ class ExerciseCard extends StatefulWidget {
 }
 
 class _ExerciseCardState extends State<ExerciseCard> {
+  bool _isFavorite = false;
+
   Future<void> postExercise() async {
     try {
       print(
