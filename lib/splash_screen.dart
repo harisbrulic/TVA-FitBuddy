@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/onboarding/onboarding_1.dart';
 import 'dart:async';
 import 'login_page.dart';
+import 'home_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late Animation<double> _pinkAnimation;
   late Animation<double> _yellowAnimation;
   late Animation<double> _whiteAnimation;
+
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -40,12 +45,27 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     _controller.forward();
+    _navigateToNext();
+  }
 
-    Timer(Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+    Future<void> _navigateToNext() async {
+    final token = await _secureStorage.read(key: 'token');
+    final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
+    final rememberMe = await _secureStorage.read(key: 'rememberMe') ?? 'false';
+
+    Timer(Duration(seconds: 5), () {
+      if (token != null && rememberMe == 'true') {{
+           Navigator.pushReplacement(
+            context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+           );
+      }
+    } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
     });
   }
 
