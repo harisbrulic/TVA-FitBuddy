@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'onboarding_2.dart';
 import '../home_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class OnboardingScreen1 extends StatefulWidget {
   @override
@@ -8,6 +9,8 @@ class OnboardingScreen1 extends StatefulWidget {
 }
 
 class _OnboardingScreen1State extends State<OnboardingScreen1> {
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
   void _showSkipDialog() {
     showDialog(
       context: context,
@@ -23,9 +26,10 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
               child: Text('Ne'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                await _secureStorage.write(key: 'isFirstLogin', value: 'false');
                 Navigator.of(context).pop();
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
