@@ -109,7 +109,7 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: Image.asset(
-                    '/exercise_gifs/${widget.exerciseName.toLowerCase().replaceAll(' ', '_')}.gif',
+                    'assets/exercise_gifs/${widget.exerciseName.toLowerCase().replaceAll(' ', '_')}.gif',
                     fit: BoxFit.cover,
                   ),
                 ),
