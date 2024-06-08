@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = false;
+  bool _rememberMe = false;
 
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
@@ -99,6 +100,10 @@ class _LoginPageState extends State<LoginPage> {
             key: 'userId',
             value: userId?.toString() ?? '0'); // tukaj nato shranim v storage
         await _secureStorage.write(key: 'username', value: username ?? '');
+
+        if (_rememberMe) {
+          await _secureStorage.write(key: 'rememberMe', value: 'true');
+        }
 
         Navigator.push(
           context,
@@ -238,17 +243,23 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Color(0xffb3b2b4)
+                      borderSide: BorderSide(color: Color(0xffb3b2b4)),
                     ),
                   ),
-                ),
                 ),
               ],
             ),
             SizedBox(height: 16),
             Row(
               children: <Widget>[
-                Checkbox(value: false, onChanged: (bool? value) {}),
+                Checkbox(
+                  value: _rememberMe,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _rememberMe = value ?? false;
+                    });
+                  },
+                ),
                 Text(
                   'Zapomni si me',
                   style: TextStyle(
