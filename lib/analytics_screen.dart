@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'header.dart';
 import 'bottomnavbar.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   @override
@@ -11,9 +11,9 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  final _secureStorage = FlutterSecureStorage();
   late Future<List<OrdinalSales>> _chartData;
   late Future<Map<String, dynamic>> _statsData;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
