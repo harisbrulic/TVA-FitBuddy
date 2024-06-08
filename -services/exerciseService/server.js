@@ -20,20 +20,25 @@ db.once('open', () => {
 app.use(express.json());
 app.use(cors());
 
+
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (token == null) return res.sendStatus(401);
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Token not provided' });
+  }
+
   jwt.verify(token, secretKey, (err, user) => {
-      if (err) return res.sendStatus(403);
-      req.user = user;
-      console.log(req.user);
-      next();
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.user = user;
+    next();
   });
-};
+}
 
-
-app.get('/',authenticateToken, async (req, res) => { //pridobitev vseh vaj
+// GET
+// Pridobitev vseh vaj
+app.get('/', authenticateToken, async (req, res) => {
   try {
     const exercises = await Exercise.find( /*userId === req.body.userId*/);
     res.json(exercises);
@@ -51,7 +56,8 @@ app.get('/favorites/:id', authenticateToken, async (req, res) => {//dobim vse v�
   }
 });
 
-app.get('/:id', async (req, res) => { //pridobitev posamezne vaje
+// Pridobitev posamezne vaje
+app.get('/:id', authenticateToken, async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -64,7 +70,9 @@ app.get('/:id', async (req, res) => { //pridobitev posamezne vaje
 });
 
 
-app.post('/', async (req, res) => { //vstavljanje vaje (admin)
+// POST
+// Vstavljanje vaje (admin)
+app.post('/', authenticateToken, async (req, res) => {
   const exercise = new Exercise({
     name: req.body.name,
     description: req.body.description,
@@ -88,30 +96,8 @@ app.post('/', async (req, res) => { //vstavljanje vaje (admin)
   }
 });
 
-/*app.post('/favorite', async (req, res) => {
-  try {
-    const {
-      name,
-      duration,
-      calories,
-      userId
-    } = req.body;
-
-    const newExercise = new ExerciseUser({
-      name,
-      duration,
-      calories,
-      userId,
-    });
-
-    const savedExercise = await newExercise.save();
-    res.status(201).json(savedExercise);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});*/
-
-app.post('/favorite', authenticateToken, async (req, res) => {//všečkanje vaje
+// Všečkanje vaje
+app.post('/favorite', authenticateToken, async (req, res) => {
   try {
     const { name, duration, calories, userId } = req.body;
     const existingExercise = await ExerciseUser.findOne({ name, userId });
@@ -126,22 +112,10 @@ app.post('/favorite', authenticateToken, async (req, res) => {//všečkanje vaje
   }
 });
 
-app.delete('/favorite', authenticateToken, async (req, res) => {//odvšečkanje vaje
-  try {
-    const { name, userId  } = req.body;
-    const exercise = await ExerciseUser.findOneAndDelete({ name, userId  });
-    if (!exercise) {
-      return res.status(404).send({ message: 'Exercise not found' });
-    }
-    res.send({ message: 'Exercise successfully deleted', exercise });
-  } catch (error) {
-    res.status(500).send({ message: 'Error deleting exercise', error });
-  }
-});
 
-
-
-app.put('/:id', async (req, res) => {//posodabljanje vaje (admin)
+// PUT
+// Posodabljanje vaje (admin)
+app.put('/:id', authenticateToken, async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -165,22 +139,10 @@ app.put('/:id', async (req, res) => {//posodabljanje vaje (admin)
   }
 });
 
-/*app.put('/favourites/:id', async (req, res) => {
-  try {
-    const exercise = await Exercise.findById(req.params.id);
-    if (!exercise) {
-      return res.status(404).json({ message: 'Exercise not found' });
-    }
-    exercise.favourite = !exercise.favourite;
-    const updatedExercise = await exercise.save();
-    res.json(updatedExercise);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});*/
 
-
-app.delete('/:id', async (req, res) => {//brisanje vaje
+// DELETE
+// Brisanje vaje
+app.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
     if (!exercise) {
@@ -191,6 +153,20 @@ app.delete('/:id', async (req, res) => {//brisanje vaje
     res.json({ message: 'Exercise deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Odvšečkanje vaje
+app.delete('/favorite', authenticateToken, async (req, res) => {
+  try {
+    const { name, userId } = req.body;
+    const exercise = await ExerciseUser.findOneAndDelete({ name, userId });
+    if (!exercise) {
+      return res.status(404).send({ message: 'Exercise not found' });
+    }
+    res.send({ message: 'Exercise successfully deleted', exercise });
+  } catch (error) {
+    res.status(500).send({ message: 'Error deleting exercise', error });
   }
 });
 
