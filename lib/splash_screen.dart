@@ -50,21 +50,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     Future<void> _navigateToNext() async {
     final token = await _secureStorage.read(key: 'token');
-    final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'true';
+    final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
     final rememberMe = await _secureStorage.read(key: 'rememberMe') ?? 'false';
 
     Timer(Duration(seconds: 5), () {
-      if (token != null && rememberMe == 'true') {
-        if (isFirstLogin == 'true') {
+      if (token != null && rememberMe == 'true') {{
            Navigator.pushReplacement(
             context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
            );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => OnboardingScreen1()),
-        );
       }
     } else {
         Navigator.pushReplacement(
@@ -74,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       }
     });
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();

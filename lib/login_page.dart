@@ -3,6 +3,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'register.dart';
 import 'onboarding/onboarding_1.dart';
+import 'home_screen.dart';
+import 'splash_screen.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -103,12 +105,23 @@ class _LoginPageState extends State<LoginPage> {
 
         if (_rememberMe) {
           await _secureStorage.write(key: 'rememberMe', value: 'true');
+        } else {
+          await _secureStorage.write(key: 'rememberMe', value: 'false');
         }
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OnboardingScreen1()),
-        );
+        final isFirstLogin = await _secureStorage.read(key: 'isFirstLogin') ?? 'false';
+
+        if (isFirstLogin== 'true') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OnboardingScreen1()),
+          );
+        }
       } else {
         // Upravljanje napak
         ScaffoldMessenger.of(context).showSnackBar(

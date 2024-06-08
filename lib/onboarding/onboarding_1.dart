@@ -27,7 +27,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
             ),
             TextButton(
               onPressed: () async {
-                await _secureStorage.write(key: 'isFirstLogin', value: 'false');
+                await _secureStorage.write(key: 'isFirstLogin', value: 'true');
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                   context,
