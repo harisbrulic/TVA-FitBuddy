@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Zdravo $_username',
+                    'Zdravo, $_username!',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 28,
