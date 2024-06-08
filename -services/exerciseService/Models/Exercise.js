@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const exerciseSchema = new mongoose.Schema({
   name: String,
   description: String,
@@ -13,5 +14,7 @@ const exerciseSchema = new mongoose.Schema({
   created: Date,
   updated: Date
 });
+
 const Exercise = mongoose.model('Exercise', exerciseSchema, 'excercises');
+
 module.exports = Exercise;
