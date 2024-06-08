@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'exercises_screens/ExerciseDetails.dart';
-import 'home_screen.dart';
-import 'user_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import './bottomnavbar.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -32,9 +31,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       if (token != null) {
         setState(() {
           _token = token;
-          print('Loaded token: $_token'); //debug
-          futureExercises =
-              fetchExercises(); // kličem fetchExercises komaj, ko se naloži token (drugače moram stran osvežiti, da mi jih pravilno pokaže)
+          futureExercises = fetchExercises();
         });
       } else {
         print('Failed to load token: Key not found');
@@ -51,7 +48,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         final userId = int.parse(userIdString);
         setState(() {
           _userId = userId;
-          print('Loaded userId: $_userId'); //debug
         });
       } else {
         print('Failed to load userId: Key not found');
@@ -66,11 +62,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       final dio = Dio();
       final response = _isVajeSelected
           ? await dio.get(
-              'http://10.0.2.2:3000/',
+              'http://localhost:3000/',
               options: Options(headers: {'Authorization': 'Bearer $_token'}),
             )
           : await dio.get(
-              'http://10.0.2.2:3000/favourites',
+              'http://localhost:3000/favourites',
               options: Options(headers: {'Authorization': 'Bearer $_token'}),
             );
       if (response.statusCode == 200) {
@@ -88,173 +84,123 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Aktivnosti'),
-        backgroundColor: Color(0xFFFED467),
-      ),
-      body: Column(
-        children: [
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isVajeSelected = false;
-                    futureExercises = fetchExercises();
-                  });
-                },
-                style: ButtonStyle(
-                  backgroundColor: _isVajeSelected
-                      ? MaterialStateProperty.all<Color>(Colors.white)
-                      : MaterialStateProperty.all<Color>(Color(0xFFFED467)),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.black),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      side: BorderSide(color: Color(0xFFFED467)),
+    return BottomNavbar(
+      selectedIndex: _selectedIndex,
+      body: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(110.0),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Color(0xFFFED467),
+            flexibleSpace: Padding(
+              padding:
+                  const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'Aktivnosti',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-                child: Text(
-                  'Treningi',
-                  style: TextStyle(fontSize: 18),
-                ),
+                ],
               ),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isVajeSelected = true;
-                    futureExercises = fetchExercises();
-                  });
-                },
-                style: ButtonStyle(
-                  backgroundColor: _isVajeSelected
-                      ? MaterialStateProperty.all<Color>(Color(0xFFFED467))
-                      : MaterialStateProperty.all<Color>(Colors.white),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.black),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      side: BorderSide(color: Color(0xFFFED467)),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  'Vaje',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: FutureBuilder<List<Exercise>>(
-              future: futureExercises,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return ExerciseCard(
-                        exercise: snapshot.data![index],
-                        userId: _userId,
-                        token: _token,
-                        //tukaj pošiljam spremenljivke iz starševksega objekta na "otroka"
-                      );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("${snapshot.error}"));
-                }
-                return Center(child: CircularProgressIndicator());
-              },
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_run),
-            label: 'Exercises',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.input),
-            label: 'Input',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analytics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFFFED467),
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+        ),
+        body: Column(
+          children: [
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isVajeSelected = false;
+                      futureExercises = fetchExercises();
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: _isVajeSelected
+                        ? MaterialStateProperty.all<Color>(Colors.white)
+                        : MaterialStateProperty.all<Color>(Color(0xFFFED467)),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.black),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        side: BorderSide(color: Color(0xFFFED467)),
+                      ),
+                    ),
                   ),
-                );
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ExerciseScreen(),
+                  child: Text(
+                    'Treningi',
+                    style: TextStyle(fontSize: 18),
                   ),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isVajeSelected = true;
+                      futureExercises = fetchExercises();
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: _isVajeSelected
+                        ? MaterialStateProperty.all<Color>(Color(0xFFFED467))
+                        : MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.black),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        side: BorderSide(color: Color(0xFFFED467)),
+                      ),
+                    ),
                   ),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                  child: Text(
+                    'Vaje',
+                    style: TextStyle(fontSize: 18),
                   ),
-                );
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserScreen(),
-                  ),
-                );
-                break;
-            }
-          });
-        },
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: FutureBuilder<List<Exercise>>(
+                future: futureExercises,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return ExerciseCard(
+                          exercise: snapshot.data![index],
+                          userId: _userId,
+                          token: _token,
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("${snapshot.error}"));
+                  }
+                  return Center(child: CircularProgressIndicator());
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -303,12 +249,8 @@ class _ExerciseCardState extends State<ExerciseCard> {
 
   Future<void> postExercise() async {
     try {
-      print(
-          'Posting exercise: ${widget.exercise.toJson()}'); // to je vse debugiranje
-      print('User ID: ${widget.userId}');
-
       final response = await Dio().post(
-        'http://10.0.2.2:3000/favorite',
+        'http://localhost:3000/favorite',
         data: {
           ...widget.exercise.toJson(),
           'userId': widget.userId,
@@ -317,7 +259,6 @@ class _ExerciseCardState extends State<ExerciseCard> {
           headers: {'Authorization': 'Bearer ${widget.token}'},
         ),
       );
-      print(response); // to je vse debugiranje
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -327,8 +268,6 @@ class _ExerciseCardState extends State<ExerciseCard> {
           ),
         );
       } else {
-        print(
-            'Failed to post exercise: ${response.statusCode}'); // to je vse debugiranje
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Neuspeh pri dodajanju vaje'),
@@ -337,7 +276,6 @@ class _ExerciseCardState extends State<ExerciseCard> {
         );
       }
     } catch (e) {
-      print('Error posting exercise: $e'); // to je vse debugiranje
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Vaja je že dodana med všečkane vaje'),
@@ -349,11 +287,8 @@ class _ExerciseCardState extends State<ExerciseCard> {
 
   Future<void> deleteExercise() async {
     try {
-      print('Deleting exercise: ${widget.exercise.name}');
-      print('User ID: ${widget.userId}');
-
       final response = await Dio().delete(
-        'http://10.0.2.2:3000/favorite',
+        'http://localhost:3000/favorite',
         data: {
           'name': widget.exercise.name,
           'userId': widget.userId,
@@ -362,7 +297,6 @@ class _ExerciseCardState extends State<ExerciseCard> {
           headers: {'Authorization': 'Bearer ${widget.token}'},
         ),
       );
-      print(response);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -372,7 +306,6 @@ class _ExerciseCardState extends State<ExerciseCard> {
           ),
         );
       } else {
-        print('Failed to delete exercise: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Neuspeh pri odstranjevanju vaje'),
@@ -381,10 +314,9 @@ class _ExerciseCardState extends State<ExerciseCard> {
         );
       }
     } catch (e) {
-      print('Error deleting exercise: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Napaka pri odstranjevanju vaje'),
+          content: Text('Vaja ni bila všečkana'),
           duration: Duration(seconds: 3),
         ),
       );

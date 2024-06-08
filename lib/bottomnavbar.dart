@@ -3,7 +3,7 @@ import 'package:flutter_application_1/input/dailyinput_screen.dart';
 import './home_screen.dart';
 import './exercise_screen.dart';
 import './analytics_screen.dart';
-
+import './user_screen.dart';
 
 class BottomNavbar extends StatefulWidget {
   final Widget body;
@@ -52,6 +52,11 @@ class _BottomNavbarState extends State<BottomNavbar> {
             MaterialPageRoute(builder: (context) => AnalyticsScreen()),
           );
           break;
+        case 4:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => UserScreen()),
+          );
       }
     });
   }
@@ -86,7 +91,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
         currentIndex: _selectedIndex,
         selectedItemColor: Color(0xFFFED467),
         unselectedItemColor: Color(0xffb3b2b4),
-        showSelectedLabels: true, 
+        showSelectedLabels: true,
         showUnselectedLabels: false,
         onTap: _onItemTapped,
       ),

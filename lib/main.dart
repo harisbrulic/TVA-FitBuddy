@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'splash_screen.dart';
 import 'home_screen.dart';
-import 'login_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() async {
@@ -13,7 +12,8 @@ void main() async {
   final token = await secureStorage.read(key: 'token');
   final rememberMe = await secureStorage.read(key: 'rememberMe') ?? 'false';
 
-  Widget defaultHome = SplashScreen(); //ko user prvič odpre app, se mu pokaze splash screen
+  Widget defaultHome =
+      SplashScreen(); //ko user prvič odpre app, se mu pokaze splash screen
 
   if (token != null && rememberMe == 'true') {
     defaultHome = HomeScreen();

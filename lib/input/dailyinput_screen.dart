@@ -47,7 +47,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
 
     try {
       final response = await _dio.get(
-        'http://10.0.2.2:3003/',
+        'http://localhost:3003/',
         queryParameters: {'userId': userId.toString()},
         options: Options(
           headers: {
@@ -59,8 +59,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
       if (response.statusCode == 200) {
         List dailyInputs = response.data;
         Map<DateTime, dynamic> inputsMap = {
-          for (var input in dailyInputs)
-            DateTime.parse(input['date']): input
+          for (var input in dailyInputs) DateTime.parse(input['date']): input
         };
         setState(() {
           _dailyInputs = dailyInputs;

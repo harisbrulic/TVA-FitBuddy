@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'header.dart';
 import 'bottomnavbar.dart';
 
@@ -10,6 +11,7 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
+  final _secureStorage = FlutterSecureStorage();
   late Future<List<OrdinalSales>> _chartData;
   late Future<Map<String, dynamic>> _statsData;
 
@@ -20,9 +22,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     _statsData = _fetchStatsData();
   }
 
+  Future<String?> _getToken() async {
+    return await _secureStorage.read(key: 'token');
+  }
+
   Future<List<OrdinalSales>> _fetchChartData() async {
     final dio = Dio();
-    final response = await dio.get('http://10.0.2.2:3003/');
+    final token = await _getToken();
+    final response = await dio.get(
+      'http://localhost:3003/',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
     if (response.statusCode == 200) {
       final data = response.data as List;
       final now = DateTime.now();
@@ -31,7 +43,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       final List<Map<String, dynamic>> filteredData = data
           .map((item) => {
                 'date': DateTime.parse(item['date']),
-                'calories': item['calories'] is int ? item['calories'] : int.parse(item['calories'].toString())
+                'calories': item['calories'] is int
+                    ? item['calories']
+                    : int.parse(item['calories'].toString())
               })
           .where((item) => item['date'].isAfter(last7Days))
           .toList();
@@ -52,7 +66,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Future<Map<String, dynamic>> _fetchStatsData() async {
     final dio = Dio();
-    final response = await dio.get('http://10.0.2.2:3003/');
+    final token = await _getToken();
+    final response = await dio.get(
+      'http://localhost:3003/',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
     if (response.statusCode == 200) {
       final data = response.data as List;
       final now = DateTime.now();
@@ -63,14 +83,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       data
           .map((item) => {
                 'date': DateTime.parse(item['date']),
-                'water': item['water'] is int ? item['water'] : int.parse(item['water'].toString()),
-                'trainingFinished': item['trainingFinished'] is bool ? item['trainingFinished'] : item['trainingFinished'].toString().toLowerCase() == 'true'
+                'water': item['water'] is int
+                    ? item['water']
+                    : int.parse(item['water'].toString()),
+                'trainingFinished': item['trainingFinished'] is bool
+                    ? item['trainingFinished']
+                    : item['trainingFinished'].toString().toLowerCase() ==
+                        'true'
               })
           .where((item) => item['date'].isAfter(last7Days))
           .forEach((item) {
-            totalWater += (item['water'] as num).toInt();
-            if (item['trainingFinished']) totalTrainings++;
-          });
+        totalWater += (item['water'] as num).toInt();
+        if (item['trainingFinished']) totalTrainings++;
+      });
 
       return {
         'totalWater': totalWater,
@@ -171,9 +196,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               ),
                             ),
                           ),
-                          barRendererDecorator: charts.BarLabelDecorator<String>(),
+                          barRendererDecorator:
+                              charts.BarLabelDecorator<String>(),
                           defaultRenderer: charts.BarRendererConfig(
-                            cornerStrategy: const charts.ConstCornerStrategy(30),
+                            cornerStrategy:
+                                const charts.ConstCornerStrategy(30),
                             maxBarWidthPx: 20,
                           ),
                         ),
@@ -190,7 +217,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         return Text('Error: ${snapshot.error}');
                       }
                       final totalWater = snapshot.data?['totalWater'] ?? 0;
-                      final totalTrainings = snapshot.data?['totalTrainings'] ?? 0;
+                      final totalTrainings =
+                          snapshot.data?['totalTrainings'] ?? 0;
                       return Row(
                         children: [
                           Expanded(
@@ -199,8 +227,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 color: Color(0xfff2f2f2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                              child: _buildStatCard('$totalWater', 'assets/icons/waterglass.png', 20.0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 24),
+                              child: _buildStatCard('$totalWater',
+                                  'assets/icons/waterglass.png', 20.0),
                             ),
                           ),
                           SizedBox(width: 16),
@@ -210,8 +240,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 color: Color(0xfff2f2f2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                              child: _buildStatCard('$totalTrainings', 'assets/icons/muscles.png', 20.0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 24),
+                              child: _buildStatCard('$totalTrainings',
+                                  'assets/icons/muscles.png', 20.0),
                             ),
                           ),
                         ],
@@ -242,7 +274,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  List<charts.Series<OrdinalSales, String>> _createSampleData(List<OrdinalSales> data) {
+  List<charts.Series<OrdinalSales, String>> _createSampleData(
+      List<OrdinalSales> data) {
     return [
       charts.Series<OrdinalSales, String>(
         id: 'Sales',

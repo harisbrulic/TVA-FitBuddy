@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'bottomnavbar.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'user_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,8 +11,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late String _username = '';
-  final FlutterSecureStorage _secureStorage =
-      FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -80,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
             automaticallyImplyLeading: false,
             backgroundColor: Color(0xFFFED467),
             flexibleSpace: Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
+              padding:
+                  const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -105,21 +104,22 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 8.0),
                   height: 150.0,
                   width: 360.0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0), 
+                    borderRadius: BorderRadius.circular(8.0),
                     child: InkWell(
                       onTap: () => _showDialog(context, 'https://www.tek.si'),
                       child: Center(
                         child: Image.asset(
                           'assets/images/tekdanes.png',
-                         fit: BoxFit.cover,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -140,7 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 150.0,
                   width: 360.0,
                   child: InkWell(
-                    onTap: () => _showDialog(context, 'https://www.jogaline.si/blog/kaj-je-joga'),
+                    onTap: () => _showDialog(
+                        context, 'https://www.jogaline.si/blog/kaj-je-joga'),
                     child: Center(
                       child: Image.asset(
                         'assets/images/jogazazacetnike.png',
