@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'bottomnavbar.dart';
 import './user_screens/userWidgets/points_widget.dart';
+import './user_screens/rules.dart';
 
 class UserScreen extends StatefulWidget {
   @override
@@ -193,7 +194,11 @@ class _UserScreenState extends State<UserScreen> {
                       IconButton(
                         icon: Icon(Icons.info),
                         onPressed: () {
-                          // Add your info functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RulesPage()),
+                          );
                         },
                       ),
                     ],

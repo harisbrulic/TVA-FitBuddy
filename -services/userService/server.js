@@ -24,6 +24,24 @@ function generateToken(user) {
   return jwt.sign({ userId: user._id, name: user.name }, secretKey, { expiresIn: '1h' });
 }
 
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) {
+    console.log('Token not provided');
+    return res.status(401).json({ message: 'Token not provided' });
+  }
+  jwt.verify(token, secretKey, (err, user) => {
+    if (err) {
+      console.log('Invalid token:', err.message);
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    console.log('User authenticated:', user);
+    req.user = user;
+    next();
+  });
+}
+
+
 app.post('/login', async (req, res) => {
   try {
       const { email, password } = req.body;
@@ -140,13 +158,13 @@ app.put('/:id', async (req, res) => {
   }
 });
 
-app.put('/points/:id', async (req, res) => {
+app.put('/points/:id',authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    user.points += req.body.points;
+    user.points = req.body.points;
     const updatedUser = await user.save();
     res.json(updatedUser);
   } catch (error) {

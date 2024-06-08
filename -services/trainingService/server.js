@@ -23,17 +23,20 @@ app.use(cors());
 function authenticateToken(req, res, next) {
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
+    console.log('Token not provided');
     return res.status(401).json({ message: 'Token not provided' });
   }
-
   jwt.verify(token, secretKey, (err, user) => {
     if (err) {
+      console.log('Invalid token:', err.message);
       return res.status(403).json({ message: 'Invalid token' });
     }
+    console.log('User authenticated:', user);
     req.user = user;
     next();
   });
 }
+
 
 // GET
 // Pridobitev vseh treningov
@@ -65,6 +68,18 @@ app.get('/:id', authenticateToken, async (req, res) => {
     }
     if (training.userId.toString() !== req.user.userId) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+    res.send(training);
+  } catch (error) {
+    res.status(500).send({ message: 'Internal server error' });
+  }
+});
+
+app.get('/user/:id', authenticateToken, async (req, res) => {
+  try {
+    const training = await Training.find( {userId:req.params.id});
+    if (!training) {
+      return res.status(404).send({ message: 'Training not found' });
     }
     res.send(training);
   } catch (error) {
