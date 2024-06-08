@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'bottomnavbar.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'user_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,6 +11,31 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  late String _username = '';
+  final FlutterSecureStorage _secureStorage =
+      FlutterSecureStorage(); // začenem secure storage
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    try {
+      final username = await _secureStorage.read(key: 'username');
+      if (username != null) {
+        setState(() {
+          _username = username;
+          print('Loaded username: $_username');
+        });
+      } else {
+        print('Failed to load username: Key not found');
+      }
+    } catch (e) {
+      print('Error loading username: $e');
+    }
+  }
 
   Future<void> _showDialog(BuildContext context, String url) async {
     final Uri uri = Uri.parse(url);
@@ -59,29 +86,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Zdravo Nina!',
+                    'Zdravo $_username',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                    },
-                    child: Text(
-                      'Domov',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                        color: _selectedIndex == 0 ? Colors.black : Colors.grey,
-                      ),
                     ),
                   ),
                 ],
