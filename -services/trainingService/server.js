@@ -47,9 +47,9 @@ app.get('/', authenticateToken, async (req, res) => {
 });
 
 // Pridobitev samo všečkanih treningov
-app.get('/favourites', authenticateToken, async (req, res) => {
+app.get('/favorites/:id', async (req, res) => {
   try {
-    const trainings = await Training.find({ favourite: true, userId: req.user.userId });
+    const trainings = await Training.find({ favourite: true, userId: req.params.id });
     res.json(trainings);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -47,13 +47,12 @@ app.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Pridobitev samo všečkanih vaj
-app.get('/favourites', authenticateToken, async (req, res) => {
+app.get('/favorites/:id', authenticateToken, async (req, res) => {//dobim vse všečkane vaje uporabnika
   try {
-    const exercises = await Exercise.find({ favourite: true && userId === req.body.userId });
-    res.json(exercises);
+      const exercises = await ExerciseUser.find( {userId: req.params.id});
+      res.send(exercises);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).send({ message: "Internal Server Error" });
   }
 });
 

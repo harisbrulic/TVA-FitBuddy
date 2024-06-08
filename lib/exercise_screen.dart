@@ -23,7 +23,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     super.initState();
     _loadToken();
     _loadUserId();
-    futureExercises = fetchExercises(); // Initialize futureExercises
+    futureExercises = fetchExercises();
   }
 
   Future<void> _loadToken() async {
@@ -263,7 +263,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 class Exercise {
   final String id;
   final String name;
-  final int duration; // Add duration field
+  final int duration;
   final int calories;
 
   Exercise(
@@ -276,7 +276,7 @@ class Exercise {
     return Exercise(
       id: json['_id'],
       name: json['name'],
-      duration: json['duration'], // Assuming duration is an integer field
+      duration: json['duration'],
       calories: json['calories'],
     );
   }
@@ -301,10 +301,8 @@ class ExerciseCard extends StatefulWidget {
 class _ExerciseCardState extends State<ExerciseCard> {
   Future<void> postExercise() async {
     try {
-      // Log the exercise details being posted
-      print('Posting exercise: ${widget.exercise.toJson()}');
-
-      // Log the user ID being sent with the request
+      print(
+          'Posting exercise: ${widget.exercise.toJson()}'); // to je vse debugiranje
       print('User ID: ${widget.userId}');
 
       final response = await Dio().post(
@@ -317,7 +315,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
           headers: {'Authorization': 'Bearer ${widget.token}'},
         ),
       );
-      print(response);
+      print(response); // to je vse debugiranje
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -327,7 +325,8 @@ class _ExerciseCardState extends State<ExerciseCard> {
           ),
         );
       } else {
-        print('Failed to post exercise: ${response.statusCode}');
+        print(
+            'Failed to post exercise: ${response.statusCode}'); // to je vse debugiranje
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Neuspeh pri dodajanju vaje'),
@@ -336,7 +335,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
         );
       }
     } catch (e) {
-      print('Error posting exercise: $e');
+      print('Error posting exercise: $e'); // to je vse debugiranje
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Vaja je že dodana med všečkane vaje'),

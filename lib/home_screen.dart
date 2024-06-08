@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: Container(), // Empty container as body
+      body: Container(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
