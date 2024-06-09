@@ -41,6 +41,34 @@ function authenticateToken(req, res, next) {
   });
 }
 
+//registracija
+app.post('/register', async (req, res) => {
+  try {
+    const { name, email, password, birthdate, gender, height, weight } = req.body;
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: 'Email is already registered' });
+    }
+    const _id = Math.floor(10000 + Math.random() * 90000);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      _id,
+      name,
+      email,
+      password: hashedPassword,
+      birthdate,
+      gender,
+      height,
+      weight,
+    });
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 //prijava
 app.post('/login', async (req, res) => {
   try {

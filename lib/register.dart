@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:dio/dio.dart';
+
 import 'login_page.dart';
 
 class Register extends StatefulWidget {
@@ -11,21 +13,86 @@ class _RegisterState extends State<Register> {
   bool _isPolicyAccepted = false;
   bool _isPasswordVisible = false;
 
-  Widget _RegisterForm() {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  String? _selectedGender;
+
+  Future<void> _registerUser() async {
+    try {
+      if (_nameController.text.isEmpty ||
+          _emailController.text.isEmpty ||
+          _passwordController.text.isEmpty ||
+          _confirmPasswordController.text.isEmpty ||
+          _weightController.text.isEmpty || // Check weight field
+          _heightController.text.isEmpty || // Check height field
+          _selectedGender == null) {
+        throw Exception('Izpolnite vsa polja.');
+      }
+
+      if (_passwordController.text != _confirmPasswordController.text) {
+        throw Exception('Gesli se ne ujemata.');
+      }
+
+      if (_passwordController.text.length <= 4) {
+        throw Exception('Geslo mora imeti vsaj 5 znakov.');
+      }
+
+      final dio = Dio();
+      final response = await dio.post(
+        'http://localhost:3002/register',
+        data: {
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'gender': _selectedGender,
+          'weight': _weightController.text, // Add weight to data
+          'height': _heightController.text, // Add height to data
+        },
+      );
+
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        throw Exception('Napaka pri registraciji: ${response.data}');
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Napaka'),
+            content: Text('$e'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Widget _registerForm() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Container(
-            color: const Color(0xFFFBFE),
-            height: 100,
-            width: 100,
-            alignment: Alignment.center,
-          ),
           Text(
-            'Registracija',
+            'Registration',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Montserrat',
@@ -34,153 +101,20 @@ class _RegisterState extends State<Register> {
             ),
           ),
           SizedBox(height: 24.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Ime',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Image.asset(
-                      'assets/icons/name.png',
-                      width: 25,
-                      height: 25,
-                      color: Colors.black,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildTextField('Ime', Icons.person, _nameController),
           SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'E-naslov',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Image.asset(
-                      'assets/icons/email.png',
-                      width: 25,
-                      height: 25,
-                      color: Colors.black,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildTextField('E-naslov', Icons.email, _emailController),
           SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Geslo',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              TextField(
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Image.asset(
-                      'assets/icons/lock.png',
-                      width: 25,
-                      height: 25,
-                      color: Colors.black,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildPasswordField('Geslo', Icons.lock, _passwordController),
           SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Potrdi geslo',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              TextField(
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Image.asset(
-                      'assets/icons/lock.png',
-                      width: 25,
-                      height: 25,
-                      color: Colors.black,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildPasswordField(
+              'Potrditev gesla', Icons.lock, _confirmPasswordController),
+          SizedBox(height: 16.0),
+          _buildGenderDropdownField('Spol', Icons.person),
+          SizedBox(height: 16.0),
+          _buildTextField('Teža (kg)', Icons.height, _weightController),
+          SizedBox(height: 16.0),
+          _buildTextField('Višina (cm)', Icons.line_weight, _heightController),
           SizedBox(height: 16.0),
           Row(
             children: <Widget>[
@@ -193,7 +127,7 @@ class _RegisterState extends State<Register> {
                 },
               ),
               Text(
-                'Sprejemem politiko poslovanja.',
+                'Seznanjen sem s pogoji uporabe.',
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   color: Colors.black,
@@ -210,23 +144,21 @@ class _RegisterState extends State<Register> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_isPolicyAccepted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
-                    );
+                    _registerUser();
                   } else {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Napaka'),
-                          content: Text('Za nadaljevanje morate sprejeti politiko poslovanja.'),
+                          content: Text(
+                              'Prosimo odkljukajte strinjanje s pogoji uporabe.'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('V redu'),
+                              child: Text('OK'),
                             ),
                           ],
                         );
@@ -255,7 +187,7 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 32.0),
           Text(
-            'Že imaš profil?',
+            'Že imate profil?',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Montserrat',
@@ -272,7 +204,7 @@ class _RegisterState extends State<Register> {
               );
             },
             child: Text(
-              'Prijavi se tukaj.',
+              'Prijavite se tukaj.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Montserrat',
@@ -287,11 +219,126 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  Widget _buildTextField(
+      String label, IconData icon, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        SizedBox(height: 8.0),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Icon(
+                icon,
+                color: Colors.black,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField(
+      String label, IconData icon, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        SizedBox(height: 8.0),
+        TextField(
+          controller: controller,
+          obscureText: !_isPasswordVisible,
+          decoration: InputDecoration(
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Icon(
+                icon,
+                color: Colors.black,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenderDropdownField(String label, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        SizedBox(height: 8.0),
+        DropdownButtonFormField<String>(
+          value: _selectedGender,
+          icon: Icon(icon),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          onChanged: (String? value) {
+            setState(() {
+              _selectedGender = value!;
+            });
+          },
+          items: ['Moški', 'Ženska'].map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: _RegisterForm(),
+        child: _registerForm(),
       ),
     );
   }

@@ -16,7 +16,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
-  TextEditingController _birthdateController = TextEditingController();
   TextEditingController _genderController = TextEditingController();
   TextEditingController _heightController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
@@ -63,11 +62,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
         setState(() {
           _nameController.text = userData['name'];
           _emailController.text = userData['email'];
-          String dateString = userData['birthdate'];
-          DateTime dateTime = DateTime.parse(dateString);
-          DateFormat formatter = DateFormat('yyyy-MM-dd');
-          String formattedDate = formatter.format(dateTime);
-          _birthdateController.text = formattedDate;
           _genderController.text = userData['gender'];
           _heightController.text = userData['height'].toString();
           _weightController.text = userData['weight'].toString();
@@ -88,7 +82,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
           'name': _nameController.text,
           'email': _emailController.text,
           'password': _passwordController.text,
-          'birthDate': _birthdateController.text,
           'gender': _selectedGender,
           'height': double.parse(_heightController.text),
           'weight': double.parse(_weightController.text),
@@ -115,7 +108,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
     // validacija pdoatkov
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _birthdateController.text.isEmpty ||
         _genderController.text.isEmpty ||
         _heightController.text.isEmpty ||
         _weightController.text.isEmpty) {
@@ -235,12 +227,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
               Text(
                 'Dodatno',
                 style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20.0),
-              _buildLabeledBoxedTextFormField(
-                label: 'Datum rojstva',
-                controller: _birthdateController,
-                readOnly: true, // Set readOnly to true
               ),
               SizedBox(height: 20.0),
               _buildGenderDropdown(), // Insert the gender dropdown here
@@ -431,7 +417,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _birthdateController.dispose();
     _genderController.dispose();
     _heightController.dispose();
     _weightController.dispose();
