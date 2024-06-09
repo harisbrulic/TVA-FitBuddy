@@ -65,7 +65,7 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
                       height: 36,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => HomeScreen()),
                           );
