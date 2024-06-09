@@ -3,7 +3,8 @@ import 'exercises_screens/ExerciseDetails.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './bottomnavbar.dart';
-import './trainings_screen.dart';
+import './models/training.dart';
+import './header.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -12,6 +13,8 @@ class ExerciseScreen extends StatefulWidget {
 
 class _ExerciseScreenState extends State<ExerciseScreen> {
   late Future<List<Exercise>> futureExercises;
+  late Future<List<Training>> futureTrainings;
+  bool _isVajeSelected = true;
   int _selectedIndex = 1;
   late String _token = '';
   late int _userId = 0;
@@ -23,6 +26,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     _loadToken();
     _loadUserId();
     futureExercises = fetchExercises();
+    futureTrainings = fetchTrainings();
   }
 
   Future<void> _loadToken() async {
@@ -60,11 +64,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   Future<List<Exercise>> fetchExercises() async {
     try {
       final dio = Dio();
-      final response = await dio.get(
-        'http://localhost:3000/',
-        options: Options(headers: {'Authorization': 'Bearer $_token'}),
-      );
-
+      final response = _isVajeSelected
+          ? await dio.get(
+              'http://localhost:3000/',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            )
+          : await dio.get(
+              'http://localhost:3000/favourites',
+              options: Options(headers: {'Authorization': 'Bearer $_token'}),
+            );
       if (response.statusCode == 200) {
         List jsonResponse = response.data;
         return jsonResponse
@@ -78,37 +86,32 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
   }
 
+  Future<List<Training>> fetchTrainings() async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        'http://localhost:3000/user/$_userId',
+        options: Options(headers: {'Authorization': 'Bearer $_token'}),
+      );
+      if (response.statusCode == 200) {
+        List jsonResponse = response.data;
+        return jsonResponse
+            .map((training) => Training.fromJson(training))
+            .toList();
+      } else {
+        throw Exception('Error loading trainings');
+      }
+    } catch (e) {
+      throw Exception('Error loading trainings');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomNavbar(
       selectedIndex: _selectedIndex,
       body: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(110.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Color(0xFFFED467),
-            flexibleSpace: Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Vaje',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        appBar: Header(title: 'Vaje', showBackButton: true),
         body: Column(
           children: [
             SizedBox(height: 10),
@@ -117,19 +120,23 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TrainingsPage()),
-                    );
+                    setState(() {
+                      _isVajeSelected = false;
+                      futureExercises = fetchExercises();
+                    });
                   },
                   style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Color(0xFFFED467)),
+                    backgroundColor: _isVajeSelected
+                        ? MaterialStateProperty.all<Color>(Colors.white)
+                        : MaterialStateProperty.all<Color>(Color(0xFFFED467)),
                     foregroundColor:
                         MaterialStateProperty.all<Color>(Colors.black),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
+                        side: BorderSide(color: Color(0xFFFED467)),
                       ),
                     ),
                   ),
@@ -139,6 +146,33 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   ),
                 ),
                 SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isVajeSelected = true;
+                      futureExercises = fetchExercises();
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: _isVajeSelected
+                        ? MaterialStateProperty.all<Color>(Color(0xFFFED467))
+                        : MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.black),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 52)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        side: BorderSide(color: Color(0xFFFED467)),
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    'Vaje',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 10),
@@ -210,8 +244,6 @@ class ExerciseCard extends StatefulWidget {
 }
 
 class _ExerciseCardState extends State<ExerciseCard> {
-  bool _isFavorite = false;
-
   Future<void> postExercise() async {
     try {
       final response = await Dio().post(
@@ -355,6 +387,60 @@ class _ExerciseCardState extends State<ExerciseCard> {
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Training {
+  final String id;
+  final String name;
+  final String description;
+
+  Training({required this.id, required this.name, required this.description});
+
+  factory Training.fromJson(Map<String, dynamic> json) {
+    return Training(
+      id: json['_id'],
+      name: json['name'],
+      description: json['description'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'description': description};
+  }
+}
+
+class TrainingCard extends StatelessWidget {
+  final Training training;
+  final int userId;
+  final String token;
+
+  TrainingCard(
+      {required this.training, required this.userId, required this.token});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Color.fromRGBO(242, 242, 242, 1),
+      margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
+      child: ListTile(
+        title: Text(
+          training.name,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Montserrat',
+          ),
+        ),
+        subtitle: Text(
+          training.description,
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'Montserrat',
           ),
         ),
       ),

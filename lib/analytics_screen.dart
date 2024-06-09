@@ -13,6 +13,7 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   late Future<List<OrdinalSales>> _chartData;
   late Future<Map<String, dynamic>> _statsData;
+  late Future<int> _userPoints;
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
@@ -20,6 +21,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     super.initState();
     _chartData = _fetchChartData();
     _statsData = _fetchStatsData();
+    _userPoints = _fetchUserPoints();
   }
 
   Future<String?> _getToken() async {
@@ -60,7 +62,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
       return chartData;
     } else {
-      throw Exception('Failed to load chart data');
+      throw Exception('Neuspešno nalaganje podatkov o kalorijah.');
     }
   }
 
@@ -102,16 +104,55 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         'totalTrainings': totalTrainings,
       };
     } else {
-      throw Exception('Failed to load stats data');
+      throw Exception('Neuspešno nalaganje statistike.');
     }
   }
+
+  Future<int> _fetchUserPoints() async {
+  final dio = Dio();
+  final token = await _getToken();
+  
+  if (token == null) {
+    throw Exception('Token is null!');
+  }
+
+  final response = await dio.get(
+    'http://localhost:3002/getId',
+    options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ),
+  );
+
+  if (response.statusCode == 200) {
+    final userId = response.data['id'];
+
+    final pointsResponse = await dio.get(
+      'http://localhost:3002/$userId',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
+
+    if (pointsResponse.statusCode == 200) {
+      final points = pointsResponse.data['points'];
+      if (points == null) {
+        throw Exception('Ni točk za uporabnika.');
+      }
+      return points;
+    } else {
+      throw Exception('Neuspešno nalaganje točk.');
+    }
+  } else {
+    throw Exception('Neuspešno nalaganje uporabnika.');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
     return BottomNavbar(
       body: Column(
         children: [
-          Header(title: 'Analitika', showBackButton: false),
+          Header(title: 'Analitika', showBackButton: true),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -251,18 +292,32 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     },
                   ),
                   SizedBox(height: 24),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xfff2f2f2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildStatCard('60 točk', 'assets/icons/xp.png', 24.0),
-                      ],
-                    ),
+                  FutureBuilder<int>(
+                    future: _userPoints,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Napaka: ${snapshot.error}'); //debug
+                      } else {
+                        final points = snapshot.data!;
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xfff2f2f2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 24, horizontal: 32),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildStatCard(
+                                  '$points točk', 'assets/icons/xp.png', 24.0),
+                            ],
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
