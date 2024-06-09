@@ -166,12 +166,28 @@ class _TrainingInputPageState extends State<TrainingInputPage> {
 
       if (response.statusCode == 201) {
         print('Trening uspešno vstavljen');
-        // ponastavim obrazec
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Training successfully inserted'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // resetiranje obrazca
+        _trainingNameController.clear();
+        _durationController.clear();
+        _caloriesController.clear();
       } else {
         throw Exception('Napaka pri vstavljanju treninga.');
       }
     } catch (e) {
       print('Napaka pri vstavljanju treninga: $e');
+      // Show an error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error inserting training: $e'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 

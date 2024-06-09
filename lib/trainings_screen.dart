@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './input/traininginputscreen.dart';
 import './bottomnavbar.dart';
 import './trainings_screens/trainingdetails.dart';
+import 'dart:convert';
 
 class TrainingsPage extends StatefulWidget {
   @override
@@ -15,6 +16,9 @@ class _TrainingsPageState extends State<TrainingsPage> {
   late String _token = '';
   late int _userId = 0;
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  bool _isDeleting = false;
+  List<Training> _selectedTrainings = [];
+  List<String> _selectedTrainingIds = [];
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
       await _loadUserId();
       setState(() {
         futureTrainings = fetchTrainings();
+        _selectedTrainingIds.clear(); // Clear selected IDs when loading data
       });
     } catch (e) {
       print('Error loading token, userId, or trainings: $e');
@@ -107,6 +112,49 @@ class _TrainingsPageState extends State<TrainingsPage> {
     }
   }
 
+  Future<void> deleteSelectedTrainings() async {
+    try {
+      final dio = Dio();
+
+      // Convert the list of IDs to a JSON array
+      String selectedTrainingIdsJson = jsonEncode(_selectedTrainingIds);
+
+      // Send the request with the JSON array as the query parameter
+      final response = await dio.delete(
+        'http://localhost:3001/delete-selected',
+        options: Options(headers: {'Authorization': 'Bearer $_token'}),
+        queryParameters: {'selectedTrainingIds': selectedTrainingIdsJson},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _selectedTrainings.clear();
+          _selectedTrainingIds.clear(); // Clear selected IDs after deletion
+          _isDeleting = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Selected trainings deleted successfully'),
+            duration: Duration(seconds: 2), // Adjust as needed
+          ),
+        );
+      } else {
+        throw Exception('Failed to delete selected trainings');
+      }
+    } catch (e) {
+      print('Error deleting selected trainings: $e');
+      // Display error message with selected training IDs
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error deleting selected trainings: $e\nSelected training IDs: ${_selectedTrainingIds.toString()}',
+          ),
+          duration: Duration(seconds: 2), // Adjust as needed
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomNavbar(
@@ -115,51 +163,121 @@ class _TrainingsPageState extends State<TrainingsPage> {
           backgroundColor: Color(0xFFFED467),
           title: Text('Treningi'),
         ),
-        body: FutureBuilder<List<Training>>(
-          future: futureTrainings,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("${snapshot.error}"));
-            } else if (snapshot.hasData) {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return TreningiItem(
-                    training: snapshot.data![index],
-                    onFavoriteToggled: () {
-                      toggleFavoriteStatus(snapshot.data![index]);
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 20.0, top: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Izberi več',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  Switch(
+                    value: _isDeleting,
+                    onChanged: (value) {
+                      setState(() {
+                        _isDeleting = value;
+                        if (!_isDeleting) {
+                          _selectedTrainings.clear();
+                          _selectedTrainingIds
+                              .clear(); // Clear selected IDs when switching off delete mode
+                        }
+                      });
                     },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<List<Training>>(
+                future: futureTrainings,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("${snapshot.error}"));
+                  } else if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return _isDeleting
+                            ? CheckboxListTile(
+                                title: Text(snapshot.data![index].name),
+                                value: _selectedTrainings
+                                    .contains(snapshot.data![index]),
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value!) {
+                                      _selectedTrainings
+                                          .add(snapshot.data![index]);
+                                      _selectedTrainingIds.add(snapshot
+                                          .data![index]
+                                          .id); // Add ID to selected IDs list
+                                    } else {
+                                      _selectedTrainings
+                                          .remove(snapshot.data![index]);
+                                      _selectedTrainingIds.remove(snapshot
+                                          .data![index]
+                                          .id); // Remove ID from selected IDs list
+                                    }
+                                  });
+                                },
+                              )
+                            : TreningiItem(
+                                training: snapshot.data![index],
+                                onFavoriteToggled: () {
+                                  toggleFavoriteStatus(snapshot.data![index]);
+                                },
+                              );
+                      },
+                    );
+                  } else {
+                    return Center(child: Text("No data found"));
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: _isDeleting
+            ? FloatingActionButton(
+                onPressed: () {
+                  deleteSelectedTrainings();
+                  setState(() {
+                    _selectedTrainings.clear();
+                    _selectedTrainingIds
+                        .clear(); // Clear selected IDs after deletion
+                  });
+                },
+                child: Icon(Icons.delete), // Icon for deletion
+                backgroundColor: Colors.red,
+                elevation: 6.0,
+                highlightElevation: 12.0,
+              )
+            : FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TrainingInputPage()),
                   );
                 },
-              );
-            } else {
-              return Center(child: Text("No data found"));
-            }
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => TrainingInputPage()),
-            );
-          },
-          child: Icon(Icons.add),
-          backgroundColor: Color(0xFFFED467),
-          shape: CircleBorder(),
-          elevation: 6.0,
-          highlightElevation: 12.0,
-        ),
+                child: Icon(Icons.add),
+                backgroundColor: Color(0xFFFED467),
+                shape: CircleBorder(),
+                elevation: 6.0,
+                highlightElevation: 12.0,
+              ),
       ),
-      selectedIndex: 1, // Assuming index 1 is for TrainingsPage
+      selectedIndex: 1,
     );
   }
 }
 
 class Training {
-  final String id; // Add ID field
+  final String id;
   final String name;
   final String duration;
   final int calories;

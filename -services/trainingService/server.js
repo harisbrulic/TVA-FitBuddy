@@ -156,23 +156,27 @@ app.put('/favourites/:id', authenticateToken, async (req, res) => {
 
 
 // DELETE
-// Brisanje treninga
-app.delete('/:id', authenticateToken, async (req, res) => {
+// Brisanje treningov
+app.delete('/delete-selected', authenticateToken, async (req, res) => {
   try {
-    const training = await Training.findById(req.params.id);
-    if (!training) {
-      return res.status(404).json({ message: 'Training not found' });
-    }
-    if (training.userId.toString() !== req.user.userId) {
-      return res.status(403).json({ message: 'Forbidden' });
+    // Izvlečem selectedTrainingIds iz headerja in ga preoblikujem v JSON obliko.
+    const selectedTrainingIds = JSON.parse(decodeURIComponent(req.query.selectedTrainingIds));
+    // grem skozi seznam in izbrišem treninge s tem idjem
+    for (const trainingId of selectedTrainingIds) {
+      const result = await Training.deleteOne({ _id: trainingId });
+      if (result.deletedCount === 0) {
+        console.log(`Training with ID ${trainingId} not found`);
+      } else {
+        console.log(`Training with ID ${trainingId} deleted successfully`);
+      }
     }
 
-    await training.remove();
-    res.json({ message: 'Training deleted' });
+    res.json({ message: 'Selected trainings deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 
 app.listen(port, () => {
