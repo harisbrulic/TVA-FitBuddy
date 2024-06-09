@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBackButton;
 
-  Header({required this.title, this.showBackButton = false});
+  Header({required this.title, this.showBackButton = true});
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +12,8 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Color(0xFFFED467),
       leading: showBackButton
           ? IconButton(
-               icon: Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                  (Route<dynamic> route) => false,
-                );
-              },
+              icon: Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.of(context).pop(),
             )
           : null,
       title: Text(

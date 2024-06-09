@@ -91,12 +91,12 @@ class _RegisterState extends State<Register> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Text(
-            'Registracija',
+            'Registration',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontSize: 32.0,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 24.0),

@@ -180,10 +180,9 @@ class _UserScreenState extends State<UserScreen> {
                       Text(
                         _username.isNotEmpty ? _username : 'User Name',
                         style: TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF000000),
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 12, 12, 12),
                         ),
                       ),
                       SizedBox(width: 5),
@@ -234,9 +233,8 @@ class _UserScreenState extends State<UserScreen> {
                       'Moje vaje', //del za vaje
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 24,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
@@ -288,8 +286,7 @@ class _UserScreenState extends State<UserScreen> {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontSize: 24,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),

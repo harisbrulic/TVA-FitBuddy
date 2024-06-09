@@ -6,16 +6,7 @@ class RulesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFFFED467),
-        title: Text(
-          'Pravila za pridobivanje točk',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-            fontFamily: 'Montserrat',
-          ),
-        ),
-        centerTitle: true,
+        title: Text('Pravila za pridobivanje točk'),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
@@ -24,7 +15,7 @@ class RulesPage extends StatelessWidget {
           children: [
             SizedBox(height: 10),
             _buildRuleItem(
-                '1 točka za vsakih 10 kalorij', 'XP točk: 1')
+                '1 točka za vsakih 10 kalorij', 'Experience points: 1')
           ],
         ),
       ),
@@ -40,18 +31,15 @@ class RulesPage extends StatelessWidget {
           Text(
             rule,
             style: TextStyle(
-              fontSize: 24,
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.w800,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 5),
           Text(
             xp,
             style: TextStyle(
-              fontFamily: 'Montserrat',
               fontSize: 16,
-              fontWeight: FontWeight.w400,
             ),
           ),
         ],
