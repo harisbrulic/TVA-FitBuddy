@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './bottomnavbar.dart';
 import './models/training.dart';
+import './header.dart';
 
 class ExerciseScreen extends StatefulWidget {
   @override
@@ -110,32 +111,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     return BottomNavbar(
       selectedIndex: _selectedIndex,
       body: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(110.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Color(0xFFFED467),
-            flexibleSpace: Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Aktivnosti',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        appBar: Header(title: 'Vaje', showBackButton: true),
         body: Column(
           children: [
             SizedBox(height: 10),
