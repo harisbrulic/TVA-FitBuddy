@@ -91,7 +91,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
     return input != null ? int.parse(input['water'].toString()) : 0;
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return BottomNavbar(
       selectedIndex: 2,
@@ -101,7 +101,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
           return false;
         },
         child: Scaffold(
-          appBar: Header(title: 'Dnevni vnos'),
+          appBar: Header(title: 'Dnevni vnos', showBackButton: true),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),

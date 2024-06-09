@@ -111,7 +111,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return BottomNavbar(
       body: Column(
         children: [
-          Header(title: 'Analitika', showBackButton: false),
+          Header(title: 'Analitika',showBackButton: true),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
