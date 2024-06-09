@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:dio/dio.dart';
 
 import 'login_page.dart';
@@ -151,8 +150,8 @@ class _RegisterState extends State<Register> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Napaka'),
-                          content: Text(
-                              'Prosimo odkljukajte strinjanje s pogoji uporabe.'),
+                          content:
+                              Text('Strinjati se morate s pogoji uporabe.'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
