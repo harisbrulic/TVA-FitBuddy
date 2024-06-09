@@ -118,10 +118,6 @@ app.put('/:id', authenticateToken, async (req, res) => {
     if (!training) {
       return res.status(404).json({ message: 'Training not found' });
     }
-    if (training.userId.toString() !== req.user.userId) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-
     training.name = req.body.name;
     training.description = req.body.description;
     training.duration = req.body.duration;

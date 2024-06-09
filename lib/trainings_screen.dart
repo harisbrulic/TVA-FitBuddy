@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_application_1/exercise_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './input/traininginputscreen.dart';
 import './bottomnavbar.dart';
@@ -32,7 +33,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
       await _loadUserId();
       setState(() {
         futureTrainings = fetchTrainings();
-        _selectedTrainingIds.clear(); // Clear selected IDs when loading data
+        _selectedTrainingIds.clear();
       });
     } catch (e) {
       print('Error loading token, userId, or trainings: $e');
@@ -116,10 +117,10 @@ class _TrainingsPageState extends State<TrainingsPage> {
     try {
       final dio = Dio();
 
-      // Convert the list of IDs to a JSON array
+      // pretvorim v json seznam
       String selectedTrainingIdsJson = jsonEncode(_selectedTrainingIds);
 
-      // Send the request with the JSON array as the query parameter
+      // pošljem kot parameter
       final response = await dio.delete(
         'http://localhost:3001/delete-selected',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
@@ -129,27 +130,26 @@ class _TrainingsPageState extends State<TrainingsPage> {
       if (response.statusCode == 200) {
         setState(() {
           _selectedTrainings.clear();
-          _selectedTrainingIds.clear(); // Clear selected IDs after deletion
+          _selectedTrainingIds.clear();
           _isDeleting = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Selected trainings deleted successfully'),
-            duration: Duration(seconds: 2), // Adjust as needed
+            content: Text('Izbrani treninngi uspešno izbrisani'),
+            duration: Duration(seconds: 2),
           ),
         );
       } else {
-        throw Exception('Failed to delete selected trainings');
+        throw Exception('Napaka pri brisanju treningov');
       }
     } catch (e) {
-      print('Error deleting selected trainings: $e');
-      // Display error message with selected training IDs
+      print('Napaka pri brisanju treningov: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Error deleting selected trainings: $e\nSelected training IDs: ${_selectedTrainingIds.toString()}',
+            'Napaka pri brisanju treningov: $e\nSelected training IDs: ${_selectedTrainingIds.toString()}',
           ),
-          duration: Duration(seconds: 2), // Adjust as needed
+          duration: Duration(seconds: 2),
         ),
       );
     }
@@ -181,8 +181,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                         _isDeleting = value;
                         if (!_isDeleting) {
                           _selectedTrainings.clear();
-                          _selectedTrainingIds
-                              .clear(); // Clear selected IDs when switching off delete mode
+                          _selectedTrainingIds.clear();
                         }
                       });
                     },
@@ -212,15 +211,13 @@ class _TrainingsPageState extends State<TrainingsPage> {
                                     if (value!) {
                                       _selectedTrainings
                                           .add(snapshot.data![index]);
-                                      _selectedTrainingIds.add(snapshot
-                                          .data![index]
-                                          .id); // Add ID to selected IDs list
+                                      _selectedTrainingIds
+                                          .add(snapshot.data![index].id);
                                     } else {
                                       _selectedTrainings
                                           .remove(snapshot.data![index]);
-                                      _selectedTrainingIds.remove(snapshot
-                                          .data![index]
-                                          .id); // Remove ID from selected IDs list
+                                      _selectedTrainingIds
+                                          .remove(snapshot.data![index].id);
                                     }
                                   });
                                 },
@@ -247,11 +244,14 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   deleteSelectedTrainings();
                   setState(() {
                     _selectedTrainings.clear();
-                    _selectedTrainingIds
-                        .clear(); // Clear selected IDs after deletion
+                    _selectedTrainingIds.clear();
                   });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ExerciseScreen()),
+                  );
                 },
-                child: Icon(Icons.delete), // Icon for deletion
+                child: Icon(Icons.delete),
                 backgroundColor: Colors.red,
                 elevation: 6.0,
                 highlightElevation: 12.0,

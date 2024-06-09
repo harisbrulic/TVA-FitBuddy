@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../trainings_screen.dart';
 
 class Exercise {
   final String id;
@@ -48,19 +49,13 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
   late TextEditingController _durationController;
   late TextEditingController _caloriesController;
   String _selectedDifficulty = 'Easy';
-
   final List<String> _difficultyLevels = ['Easy', 'Medium', 'Hard'];
   late Future<List<Exercise>> futureExercises = Future.value([]);
-
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   late String _token = '';
   late int _userId = 0;
-
-  // Variables for calculating total duration and calories
   int _totalCalories = 0;
   int _totalDuration = 0;
-
-  // List to store selected exercise IDs
   List<String> _selectedExerciseIds = [];
 
   @override
@@ -69,12 +64,15 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
     _trainingNameController = TextEditingController();
     _durationController = TextEditingController();
     _caloriesController = TextEditingController();
-
-    // Pre-fill fields with training details
+    print('Training details: ${widget.trainingDetails}');
     _trainingNameController.text = widget.trainingDetails['name'];
     _selectedDifficulty = widget.trainingDetails['difficulty'];
     _durationController.text = widget.trainingDetails['duration'].toString();
     _caloriesController.text = widget.trainingDetails['calories'].toString();
+    _totalDuration = widget.trainingDetails['duration'];
+    _totalCalories = widget.trainingDetails['calories'];
+    _selectedExerciseIds =
+        List<String>.from(widget.trainingDetails['exerciseIds']);
 
     _loadTokenAndUserId().then((_) {
       setState(() {
@@ -137,24 +135,17 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
         _totalDuration += duration;
         _selectedExerciseIds.add(exerciseId);
       } else {
-        Exercise? removedExercise;
-        futureExercises.then((exercises) {
-          removedExercise = exercises.firstWhere(
-            (exercise) => exercise.id == exerciseId,
-          );
-          if (removedExercise != null) {
-            _totalCalories -= removedExercise!.calories;
-            _totalDuration -= removedExercise!.duration;
-            _selectedExerciseIds.remove(exerciseId);
-          }
-          _caloriesController.text = _totalCalories.toString();
-          _durationController.text = _totalDuration.toString();
-        });
+        _totalCalories -= calories;
+        _totalDuration -= duration;
+        _selectedExerciseIds.remove(exerciseId);
       }
+      _caloriesController.text = _totalCalories.toString();
+      _durationController.text = _totalDuration.toString();
     });
   }
 
-  Future<void> _submitTrainingData() async {
+  void _submitTrainingData(BuildContext context) async {
+    final String trainingId = widget.trainingDetails['_id'];
     final String trainingName = _trainingNameController.text;
     final String duration = _durationController.text;
     final String calories = _caloriesController.text;
@@ -162,46 +153,38 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
 
     try {
       final dio = Dio();
-      List<String> selectedExerciseIds = [];
-      for (Exercise exercise in await futureExercises) {
-        if (_selectedExerciseIds.contains(exercise.id)) {
-          selectedExerciseIds.add(exercise.id);
-        }
-      }
-      final response = await dio.post(
-        'http://localhost:3001/',
+      final response = await dio.put(
+        'http://localhost:3001/$trainingId',
         data: {
           'name': trainingName,
           'duration': duration,
           'calories': calories,
           'difficulty': difficulty,
-          'exerciseIds': selectedExerciseIds,
+          'exerciseIds': _selectedExerciseIds,
           'userId': _userId.toString(),
         },
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
-      if (response.statusCode == 201) {
-        print('Training successfully inserted');
+      if (response.statusCode == 200) {
+        print('Training successfully updated');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Training successfully inserted'),
+            content: Text('Uspešna posodobitev treninga'),
             duration: Duration(seconds: 2),
           ),
         );
-        // Reset form
         _trainingNameController.clear();
         _durationController.clear();
         _caloriesController.clear();
       } else {
-        throw Exception('Error inserting training');
+        throw Exception('Napaka pri posodabljanju treninga');
       }
     } catch (e) {
-      print('Error inserting training: $e');
-      // Show an error SnackBar
+      print('Error updating training: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error inserting training: $e'),
+          content: Text('Napaka pri posodabljanju treninga: $e'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -270,19 +253,27 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
               keyboardType: TextInputType.number,
               readOnly: true,
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _submitTrainingData();
+                _submitTrainingData(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TrainingsPage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFFED467),
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Text('Update Training',
-                  style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
+              child: Text(
+                'Uredi trening',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
             SizedBox(height: 16.0),
             Text('Exercises',
@@ -301,8 +292,8 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         Exercise exercise = snapshot.data![index];
-                        bool isSelected = widget.trainingDetails['exerciseIds']
-                            .contains(exercise.id);
+                        bool isSelected =
+                            _selectedExerciseIds.contains(exercise.id);
                         return ExerciseItem(
                           exercise: exercise,
                           isSelected: isSelected,
@@ -339,40 +330,33 @@ class ExerciseItem extends StatefulWidget {
 }
 
 class _ExerciseItemState extends State<ExerciseItem> {
-  late bool _isSelected;
-
-  @override
-  void initState() {
-    super.initState();
-    _isSelected = widget.isSelected;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: ListTile(
-          title: Text(
-            widget.exercise.name,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            'Duration: ${widget.exercise.duration} minutes\nCalories: ${widget.exercise.calories} kcal',
-          ),
-          trailing: Checkbox(
-            value: _isSelected,
-            activeColor: Color(0xFFFED467), // Color when exercise is checked
-            onChanged: (bool? value) {
-              setState(() {
-                _isSelected = value ?? false;
-                widget.onExerciseSelected(
-                    widget.exercise.id,
-                    _isSelected, // Saves value to list. Calculation of calories and duration of each exercise happens during submission
-                    widget.exercise.calories,
-                    widget.exercise.duration);
-              });
-            },
-          ),
-        ));
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        title: Text(
+          widget.exercise.name,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          'Duration: ${widget.exercise.duration} minutes\nCalories: ${widget.exercise.calories} kcal',
+        ),
+        trailing: Checkbox(
+          value: widget.isSelected,
+          activeColor: Color(0xFFFED467),
+          onChanged: (bool? value) {
+            setState(() {
+              widget.onExerciseSelected(
+                widget.exercise.id,
+                value ?? false,
+                widget.exercise.calories,
+                widget.exercise.duration,
+              );
+            });
+          },
+        ),
+      ),
+    );
   }
 }

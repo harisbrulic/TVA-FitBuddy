@@ -44,7 +44,7 @@ function authenticateToken(req, res, next) {
 //registracija
 app.post('/register', async (req, res) => {
   try {
-    const { name, email, password, birthdate, gender, height, weight } = req.body;
+    const { name, email, password, gender, height, weight } = req.body;
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ message: 'Email is already registered' });
@@ -56,7 +56,6 @@ app.post('/register', async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      birthdate,
       gender,
       height,
       weight,

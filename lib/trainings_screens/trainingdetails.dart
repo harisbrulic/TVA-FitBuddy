@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import './trainingseditscreen.dart';
 
 class TrainingDetailsScreen extends StatefulWidget {
   final String trainingId;
@@ -28,7 +29,6 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
       if (token != null) {
         setState(() {
           _token = token;
-          print('Loaded token: $_token'); //debug
           fetchTrainingDetails();
         });
       } else {
@@ -61,6 +61,17 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
     } catch (e) {
       print('Error: $e');
     }
+  }
+
+  void _editTraining() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrainingEditScreen(
+          trainingDetails: trainingDetails,
+        ),
+      ),
+    );
   }
 
   @override
@@ -96,8 +107,22 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
                 'Difficulty: ${trainingDetails['difficulty']}',
                 style: TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 10),
-              // Add more widgets to display other training details here
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _editTraining,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFED467),
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                ),
+                child: Text(
+                  'Uredi trening',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
