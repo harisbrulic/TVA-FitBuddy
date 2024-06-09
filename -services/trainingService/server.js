@@ -66,9 +66,6 @@ app.get('/:id', authenticateToken, async (req, res) => {
     if (!training) {
       return res.status(404).send({ message: 'Training not found' });
     }
-    if (training.userId.toString() !== req.user.userId) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
     res.send(training);
   } catch (error) {
     res.status(500).send({ message: 'Internal server error' });
