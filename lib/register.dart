@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:dio/dio.dart';
 
 import 'login_page.dart';
@@ -28,8 +27,8 @@ class _RegisterState extends State<Register> {
           _emailController.text.isEmpty ||
           _passwordController.text.isEmpty ||
           _confirmPasswordController.text.isEmpty ||
-          _weightController.text.isEmpty || // Check weight field
-          _heightController.text.isEmpty || // Check height field
+          _weightController.text.isEmpty ||
+          _heightController.text.isEmpty ||
           _selectedGender == null) {
         throw Exception('Izpolnite vsa polja.');
       }
@@ -50,8 +49,8 @@ class _RegisterState extends State<Register> {
           'email': _emailController.text,
           'password': _passwordController.text,
           'gender': _selectedGender,
-          'weight': _weightController.text, // Add weight to data
-          'height': _heightController.text, // Add height to data
+          'weight': _weightController.text,
+          'height': _heightController.text,
         },
       );
 
@@ -151,8 +150,8 @@ class _RegisterState extends State<Register> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Napaka'),
-                          content: Text(
-                              'Prosimo odkljukajte strinjanje s pogoji uporabe.'),
+                          content:
+                              Text('Strinjati se morate s pogoji uporabe.'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {

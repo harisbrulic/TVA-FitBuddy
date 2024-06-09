@@ -149,10 +149,6 @@ app.put('/favourites/:id', authenticateToken, async (req, res) => {
     if (!training) {
       return res.status(404).json({ message: 'Training not found' });
     }
-    if (training.userId.toString() !== req.user.userId) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-
     training.favourite = !training.favourite;
     const updatedTraining = await training.save();
     res.json(updatedTraining);
