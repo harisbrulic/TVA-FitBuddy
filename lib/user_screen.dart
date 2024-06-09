@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'bottomnavbar.dart';
 import './user_screens/userWidgets/points_widget.dart';
 import './user_screens/rules.dart';
+import './user_screens/userEditScreen.dart';
 
 class UserScreen extends StatefulWidget {
   @override
@@ -188,7 +189,11 @@ class _UserScreenState extends State<UserScreen> {
                       IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () {
-                          // Add your edit functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EditUserScreen()),
+                          );
                         },
                       ),
                       IconButton(

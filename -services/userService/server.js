@@ -41,7 +41,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-
+//prijava
 app.post('/login', async (req, res) => {
   try {
       const { email, password } = req.body;
@@ -62,6 +62,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
+//pridobitev id-ja uporabnika
 app.get('/getId', (req, res) => {
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
@@ -78,6 +79,7 @@ app.get('/getId', (req, res) => {
   }
 });
 
+//pridobitev imena uporabnika
 app.get('/getUsername', (req, res) => {
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
@@ -94,7 +96,7 @@ app.get('/getUsername', (req, res) => {
   }
 });
 
-
+//seznam vseh uporabnikov
 app.get('/', async (req, res) => {
   try {
     const users = await User.find();
@@ -104,6 +106,7 @@ app.get('/', async (req, res) => {
   }
 });
 
+//branje uporabnika
 app.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -116,7 +119,7 @@ app.get('/:id', async (req, res) => {
   }
 });
 
-
+//vnos uporabnika
 app.post('/', async (req, res) => {
   const user = new User({
     name: req.body.name,
@@ -134,23 +137,25 @@ app.post('/', async (req, res) => {
   }
 });
 
-
-app.put('/:id', async (req, res) => {
+//posodabljanje uporabnika
+app.put('/:id', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
+    
+    // če je uproabnik spremenil se spremeni v bazi, drugače ne (če je prazno)
+    if (req.body.password) {
+      user.password = await bcrypt.hash(req.body.password, 10);
+    }
     user.name = req.body.name;
     user.email = req.body.email;
-    user.password = req.body.password;
     user.birthDate = req.body.birthDate;
     user.gender = req.body.gender;
     user.weight = req.body.weight;
     user.height = req.body.height;
     user.updated = new Date();
-
     const updatedUser = await user.save();
     res.json(updatedUser);
   } catch (error) {
@@ -158,6 +163,8 @@ app.put('/:id', async (req, res) => {
   }
 });
 
+
+//posodabljanje točk uporabnika
 app.put('/points/:id',authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -172,7 +179,7 @@ app.put('/points/:id',authenticateToken, async (req, res) => {
   }
 });
 
-
+//brisanje uporabnika
 app.delete('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -180,12 +187,13 @@ app.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await user.remove();
+    await User.deleteOne({ _id: req.params.id });
     res.json({ message: 'User deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 
 app.listen(port, () => {

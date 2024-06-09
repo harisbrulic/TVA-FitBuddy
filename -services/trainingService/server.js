@@ -75,6 +75,7 @@ app.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+//pridobivanje vseh treningov uporabnika
 app.get('/user/:id', authenticateToken, async (req, res) => {
   try {
     const training = await Training.find( {userId:req.params.id});
