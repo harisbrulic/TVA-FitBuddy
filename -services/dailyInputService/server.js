@@ -37,6 +37,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
+//funkcija za posodobitev točk uporabnika
 async function updateUserPoints(userId, totalPoints, token) {
   try {
     const response = await axios.put(`http://localhost:3002/points/${userId}`, { points: totalPoints }, {
@@ -51,6 +52,7 @@ async function updateUserPoints(userId, totalPoints, token) {
   }
 }
 
+//funkcija za pridobitev vseh dnevnih vnosov uporabnika
 async function fetchDailyInputs(userId, token) {
   try {
     const response = await axios.get(`http://localhost:3003/user/${userId}`, {
@@ -67,10 +69,10 @@ async function fetchDailyInputs(userId, token) {
 
 // računanje točke glede na dnevne vnose
 function calculatePoints(dailyInput) {
-  return dailyInput.calories / 10; // 1 point for every 10 calories
+  return dailyInput.calories / 10; // 1 točka za vsakih 10 kalorij
 }
 
-// Function to calculate total points from daily inputs
+// funkcija za izračun točk
 function calculateTotalPoints(dailyInputs) {
   let totalPoints = 0;
   dailyInputs.forEach(dailyInput => {
@@ -94,9 +96,9 @@ app.post('/', authenticateToken, async (req, res) => {
 
   try {
     const newDailyInput = await dailyInput.save();
-    const dailyInputs = await fetchDailyInputs(req.body.userId, token); 
-    const totalPoints = calculateTotalPoints(dailyInputs); 
-    await updateUserPoints(req.body.userId, totalPoints, token);
+    const dailyInputs = await fetchDailyInputs(req.body.userId, token); //najprej se kliče preko axios endpoint da pridobi vse dnevne vnose glede na userId 
+    const totalPoints = calculateTotalPoints(dailyInputs); //vse točke iz seznama dnevnih vnosov se seštejejo po neki logiki
+    await updateUserPoints(req.body.userId, totalPoints, token); //ta vrednost se vstavi pod points v userja
     res.status(201).json(newDailyInput);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -179,6 +181,7 @@ app.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+//pridobvanje vseh dnevnih vnosov uporabnika
 app.get('/user/:id', authenticateToken, async (req, res) => {
   try {
     const dailyInput = await DailyInput.find( {userId:req.params.id});

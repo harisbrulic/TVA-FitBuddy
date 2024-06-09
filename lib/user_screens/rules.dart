@@ -14,14 +14,8 @@ class RulesPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10),
-            _buildRuleItem('Vsak končan trening', '10 XP'),
-            _buildRuleItem('Vsak liter popite vode', '5 XP'),
             _buildRuleItem(
-                'Vsaka dodatna aktivnost izven rednega treninga', '15 XP'),
-            _buildRuleItem('Vsaka vožnja s kolesom nad 5 kilometrov', '20 XP'),
-            _buildRuleItem(
-                'Če redno uporabljate funkcijo sledenja kalorij, točke dobite za vsak teden',
-                '10 XP'),
+                '1 točka za vsakih 10 kalorij', 'Experience points: 1')
           ],
         ),
       ),
