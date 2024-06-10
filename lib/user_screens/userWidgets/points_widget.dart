@@ -18,13 +18,19 @@ class PointsWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Level $level',
-              style: TextStyle(fontSize: 20),
+              'Nivo $level',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Montserrat'),
             ),
             SizedBox(height: 8),
             Text(
-              '$points Points',
-              style: TextStyle(fontSize: 16),
+              '$points točk',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Montserrat'),
             ),
             SizedBox(height: 8),
             LinearProgressIndicator(
