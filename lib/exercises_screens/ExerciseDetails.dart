@@ -50,7 +50,7 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3000/${widget.exerciseId}',
+        'http://10.0.2.2:3000/${widget.exerciseId}',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),

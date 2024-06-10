@@ -61,7 +61,7 @@ class _InputScreenState extends State<InputScreen> {
     try {
       if (widget.existingEntry != null) {
         final response = await _dio.put(
-          'http://localhost:3003/${widget.existingEntry!['_id']}',
+          'http://10.0.2.2:3003/${widget.existingEntry!['_id']}',
           options: Options(
             headers: {
               'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ class _InputScreenState extends State<InputScreen> {
       } else {
         // Create new entry
         final response = await _dio.post(
-          'http://localhost:3003/',
+          'http://10.0.2.2:3003/',
           options: Options(
             headers: {
               'Content-Type': 'application/json',

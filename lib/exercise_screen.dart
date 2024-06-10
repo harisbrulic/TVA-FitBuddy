@@ -61,7 +61,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     try {
       final dio = Dio();
       final response = await dio.get(
-        'http://localhost:3000/',
+        'http://10.0.2.2:3000/',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
@@ -215,7 +215,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
   Future<void> postExercise() async {
     try {
       final response = await Dio().post(
-        'http://localhost:3000/favorite',
+        'http://10.0.2.2:3000/favorite',
         data: {
           ...widget.exercise.toJson(),
           'userId': widget.userId,
@@ -253,7 +253,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
   Future<void> deleteExercise() async {
     try {
       final response = await Dio().delete(
-        'http://localhost:3000/favorite',
+        'http://10.0.2.2:3000/favorite',
         data: {
           'name': widget.exercise.name,
           'userId': widget.userId,

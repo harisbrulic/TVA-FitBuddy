@@ -75,7 +75,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
     try {
       final dio = Dio();
       final response = await dio.get(
-        'http://localhost:3001/user/$_userId',
+        'http://10.0.2.2:3001/user/$_userId',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
@@ -96,7 +96,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
     try {
       final dio = Dio();
       final response = await dio.put(
-        'http://localhost:3001/favourites/${training.id}',
+        'http://10.0.2.2:3001/favourites/${training.id}',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
@@ -122,7 +122,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
 
       // pošljem kot parameter
       final response = await dio.delete(
-        'http://localhost:3001/delete-selected',
+        'http://10.0.2.2:3001/delete-selected',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
         queryParameters: {'selectedTrainingIds': selectedTrainingIdsJson},
       );
@@ -135,7 +135,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Izbrani treninngi uspešno izbrisani'),
+            content: Text('Izbrani treningi uspešno izbrisani'),
             duration: Duration(seconds: 2),
           ),
         );

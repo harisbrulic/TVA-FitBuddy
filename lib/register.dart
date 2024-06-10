@@ -43,7 +43,7 @@ class _RegisterState extends State<Register> {
 
       final dio = Dio();
       final response = await dio.post(
-        'http://localhost:3002/register',
+        'http://10.0.2.2:3002/register',
         data: {
           'name': _nameController.text,
           'email': _emailController.text,

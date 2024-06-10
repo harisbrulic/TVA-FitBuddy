@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<int?> _extractUserId(String token) async {
     try {
       final response = await Dio().get(
-        'http://localhost:3002/getId',
+        'http://10.0.2.2:3002/getId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
       print('Get ID response: $response');
@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<String?> _extractUsername(String token) async {
     try {
       final response = await Dio().get(
-        'http://localhost:3002/getUsername',
+        'http://10.0.2.2:3002/getUsername',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await Dio().post(
-        'http://localhost:3002/login',
+        'http://10.0.2.2:3002/login',
         data: {'email': email, 'password': password},
       );
 

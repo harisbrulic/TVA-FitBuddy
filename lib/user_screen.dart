@@ -87,7 +87,7 @@ class _UserScreenState extends State<UserScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3002/$_userId',
+        'http://10.0.2.2:3002/$_userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -111,7 +111,7 @@ class _UserScreenState extends State<UserScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3000/favorites/$_userId',
+        'http://10.0.2.2:3000/favorites/$_userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -135,7 +135,7 @@ class _UserScreenState extends State<UserScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3001/favorites/$_userId',
+        'http://10.0.2.2:3001/favorites/$_userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -171,7 +171,7 @@ class _UserScreenState extends State<UserScreen> {
                 children: [
                   CircleAvatar(
                     radius: 80,
-                    backgroundImage: AssetImage('images/avatar_2.png'),
+                    backgroundImage: AssetImage('assets/images/avatar_2.png'),
                   ),
                   SizedBox(height: 10),
                   Row(

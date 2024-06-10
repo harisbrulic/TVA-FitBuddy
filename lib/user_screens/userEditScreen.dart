@@ -52,7 +52,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   Future<void> fetchUserDetails() async {
     try {
       final response = await Dio().get(
-        'http://localhost:3002/$_userId',
+        'http://10.0.2.2:3002/$_userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -77,7 +77,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   Future<void> _saveUserToDatabase() async {
     try {
       final response = await Dio().put(
-        'http://localhost:3002/$_userId',
+        'http://10.0.2.2:3002/$_userId',
         data: {
           'name': _nameController.text,
           'email': _emailController.text,
@@ -131,7 +131,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   Future<void> deleteUser(String userId) async {
     try {
       final response = await Dio().delete(
-        'http://localhost:3002/$userId',
+        'http://10.0.2.2:3002/$userId',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),

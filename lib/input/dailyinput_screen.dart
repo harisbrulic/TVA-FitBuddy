@@ -47,7 +47,7 @@ class _DailyInputScreenState extends State<DailyInputScreen> {
 
     try {
       final response = await _dio.get(
-        'http://localhost:3003/',
+        'http://10.0.2.2:3003/',
         queryParameters: {'userId': userId.toString()},
         options: Options(
           headers: {

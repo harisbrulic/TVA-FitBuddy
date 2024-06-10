@@ -102,7 +102,7 @@ class _TrainingInputPageState extends State<TrainingInputPage> {
     try {
       final dio = Dio();
       final response = await dio.get(
-        'http://localhost:3000/',
+        'http://10.0.2.2:3000/',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
@@ -152,7 +152,7 @@ class _TrainingInputPageState extends State<TrainingInputPage> {
         }
       }
       final response = await dio.post(
-        'http://localhost:3001/',
+        'http://10.0.2.2:3001/',
         data: {
           'name': trainingName,
           'duration': duration,
@@ -168,7 +168,7 @@ class _TrainingInputPageState extends State<TrainingInputPage> {
         print('Trening uspešno vstavljen');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Training successfully inserted'),
+            content: Text('Trening uspešno vstavljen'),
             duration: Duration(seconds: 2),
           ),
         );

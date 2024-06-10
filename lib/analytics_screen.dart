@@ -30,7 +30,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final dio = Dio();
     final token = await _getToken();
     final response = await dio.get(
-      'http://localhost:3003/',
+      'http://10.0.2.2:3003/',
       options: Options(
         headers: {'Authorization': 'Bearer $token'},
       ),
@@ -68,7 +68,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final dio = Dio();
     final token = await _getToken();
     final response = await dio.get(
-      'http://localhost:3003/',
+      'http://10.0.2.2:3003/',
       options: Options(
         headers: {'Authorization': 'Bearer $token'},
       ),

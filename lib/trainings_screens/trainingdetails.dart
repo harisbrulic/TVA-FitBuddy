@@ -46,7 +46,7 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
     }
     try {
       final response = await Dio().get(
-        'http://localhost:3001/${widget.trainingId}',
+        'http://10.0.2.2:3001/${widget.trainingId}',
         options: Options(
           headers: {'Authorization': 'Bearer $_token'},
         ),
@@ -78,7 +78,7 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Training Details'),
+        title: Text('Podrobnosti treninga'),
         backgroundColor: Color(0xFFFED467),
       ),
       body: SingleChildScrollView(
@@ -89,22 +89,22 @@ class _TrainingDetailsScreenState extends State<TrainingDetailsScreen> {
             children: [
               SizedBox(height: 20),
               Text(
-                'Training Name: ${trainingDetails['name']}',
+                'Ime: ${trainingDetails['name']}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
               Text(
-                'Duration: ${trainingDetails['duration']}',
+                'Trajanje: ${trainingDetails['duration']}',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 10),
               Text(
-                'Calories: ${trainingDetails['calories']}',
+                'Kalorije: ${trainingDetails['calories']}',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 10),
               Text(
-                'Difficulty: ${trainingDetails['difficulty']}',
+                'Težavnost: ${trainingDetails['difficulty']}',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 20),

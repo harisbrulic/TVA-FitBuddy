@@ -110,7 +110,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
     try {
       final dio = Dio();
       final response = await dio.get(
-        'http://localhost:3000/',
+        'http://10.0.2.2:3000/',
         options: Options(headers: {'Authorization': 'Bearer $_token'}),
       );
 
@@ -154,7 +154,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
     try {
       final dio = Dio();
       final response = await dio.put(
-        'http://localhost:3001/$trainingId',
+        'http://10.0.2.2:3001/$trainingId',
         data: {
           'name': trainingName,
           'duration': duration,
@@ -196,14 +196,14 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFFFED467),
-        title: Text('Edit Training'),
+        title: Text('Uredi trening'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Name'),
+            Text('Ime'),
             SizedBox(height: 8.0),
             TextField(
               controller: _trainingNameController,
@@ -212,7 +212,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
               ),
             ),
             SizedBox(height: 16.0),
-            Text('Difficulty'),
+            Text('Težavnost'),
             SizedBox(height: 8.0),
             DropdownButtonFormField<String>(
               value: _selectedDifficulty,
@@ -232,7 +232,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
               },
             ),
             SizedBox(height: 16.0),
-            Text('Duration (minutes)'),
+            Text('Trajanje (minute)'),
             SizedBox(height: 8.0),
             TextField(
               controller: _durationController,
@@ -243,7 +243,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
               readOnly: true,
             ),
             SizedBox(height: 16.0),
-            Text('Calories'),
+            Text('Kalorije'),
             SizedBox(height: 8.0),
             TextField(
               controller: _caloriesController,
@@ -276,7 +276,7 @@ class _TrainingEditScreenState extends State<TrainingEditScreen> {
               ),
             ),
             SizedBox(height: 16.0),
-            Text('Exercises',
+            Text('Vaje',
                 style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
             SizedBox(height: 8.0),
             Expanded(
