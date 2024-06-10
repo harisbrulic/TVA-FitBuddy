@@ -5,6 +5,7 @@ Pozdravljen, bodoči fit junak! Si pripravljen na epsko potovanje do izjemne pos
 ### Uporabljene tehnologije 📱
 - Flutter: Fitbuddy je mobilna aplikacija, ki je napisana v Flutterju. Flutter omogoča hitro razvojno okolje za izdelavo prenosljivih in odzivnih mobilnih aplikacij za več platform, vključno z Androidom. To omogoča, da je aplikacija Fitbuddy dostopna večini uporabnikov pametnih telefonov.
 - MongoDB: Za shranjevanje podatkov Fitbuddy uporablja dokumentno podatkovno bazo MongoDB. MongoDB je prilagodljiva in zmogljiva baza podatkov, ki omogoča enostavno shranjevanje, iskanje in upravljanje strukturiranih podatkov za aplikacije.
+- Express: Fitbuddy uporablja Express, ki je fleksibilen in zmogljiv spletni okvir za Node.js. Express omogoča hitro in enostavno izdelavo spletnih aplikacij ter zagotavlja učinkovito usmerjanje, upravljanje zahtevkov in odgovorov, sredstva za dinamično vsebino, upravljanje jwt žetonov in njihovo prenašanje ter drugo.
 
 
 ## Tehnične podrobnosti🛠️  
